@@ -41,19 +41,19 @@
   "rewrites": [
     {
       "source": "/events/:path*",
-      "destination": "/explore.html"
+      "destination": "/explore"
     },
     {
       "source": "/gallery/:path*",
-      "destination": "/explore.html"
+      "destination": "/explore"
     },
     {
       "source": "/impact/:path*",
-      "destination": "/explore.html"
+      "destination": "/explore"
     },
     {
       "source": "/partners/:path*",
-      "destination": "/explore.html"
+      "destination": "/explore"
     }
   ]
 }
