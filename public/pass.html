@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Your URC event pass</title>
+    <link rel="icon" href="/assets/favicon.svg" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/pass.css" />
+    <script src="/pass.js" type="module"></script>
+  </head>
+  <body class="pass-body">
+    <header class="site-header">
+      <a href="/" class="brand" aria-label="URC home"
+        ><span class="brand-mark">U<i>R</i>C</span
+        ><span class="brand-full">POWERHOUSE<br />URBAN RUN CLUB</span></a
+      ><a href="/events" class="text-button light">Our runs ↗</a>
+    </header>
+    <main class="pass-main">
+      <p class="pass-notice" id="pass-notice" role="status">
+        Loading your event pass…
+      </p>
+      <section id="pass-card" hidden>
+        <div class="pass-intro">
+          <span class="index">YOUR PEOPLE. YOUR PACE.</span>
+          <h1>YOUR NEXT<br />GOOD MEMORY.</h1>
+          <p>
+            Your PDF is ready when you are. Keep your private pass link
+            somewhere safe so you can download it again.
+          </p>
+        </div>
+        <div class="digital-pass" id="digital-pass">
+          <div class="pass-art">
+            <img src="/assets/hero.webp" alt="" width="1536" height="1024" />
+            <div>
+              <span class="mini-mark">U<i>R</i>C</span
+              ><span class="pass-type">FREE EVENT PASS</span>
+              <h2 id="pass-event-title"></h2>
+              <p id="pass-date"></p>
+              <p id="pass-location"></p>
+            </div>
+          </div>
+          <div class="pass-information">
+            <div>
+              <span class="pass-field-label">PARTICIPANT</span>
+              <h3 id="pass-name"></h3>
+              <p id="pass-activity"></p>
+            </div>
+            <div class="pass-qr">
+              <canvas id="pass-qr"></canvas><span id="pass-code"></span>
+            </div>
+          </div>
+          <div class="pass-bottom-note">
+            Attendance is free. Giving is optional. Everyone belongs.
+          </div>
+        </div>
+        <div class="pass-actions">
+          <button class="button button-dark" id="download-pass">
+            Download PDF <span aria-hidden="true">↓</span></button
+          ><button class="button button-light" id="copy-pass">
+            Copy private link <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+        <p id="pass-message" role="status" class="pass-message"></p>
+        <p class="pass-small">
+          Your QR code confirms your registration. It doesn’t show donation
+          information. Email delivery isn’t required to use this pass.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

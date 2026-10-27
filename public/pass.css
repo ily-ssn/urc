@@ -1,0 +1,222 @@
+.pass-body {
+  background: #eeeee7;
+}
+.pass-main {
+  max-width: 900px;
+  margin: auto;
+  padding: 35px 28px 70px;
+}
+.pass-notice {
+  padding: 15px 20px;
+  border: 1px solid var(--line);
+  background: #e2ebd9;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 35px;
+}
+.pass-notice.preview {
+  background: #f5e9c7;
+  border-color: #d8c590;
+}
+.pass-intro {
+  margin-bottom: 30px;
+}
+.pass-intro h1 {
+  font-size: 85px;
+  margin: 22px 0;
+}
+.pass-intro p {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 55ch;
+}
+.digital-pass {
+  border: 1px solid #b9c3ad;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 45px #14200b0b;
+  background: var(--paper);
+}
+.pass-art {
+  height: 330px;
+  position: relative;
+  overflow: hidden;
+  color: var(--paper);
+}
+.pass-art > img {
+  position: absolute;
+  inset: 0;
+  filter: grayscale(0.8);
+  object-position: center 56%;
+}
+.pass-art:after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(90deg, #0a1009ef, #0a1009bb 55%, #0a10094d);
+}
+.pass-art > div {
+  position: relative;
+  z-index: 1;
+  padding: 30px 35px;
+}
+.pass-art .mini-mark {
+  display: block;
+  font-size: 50px;
+}
+.pass-type {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  color: var(--green);
+  display: block;
+  margin-top: 20px;
+}
+.pass-art h2 {
+  font-size: 55px;
+  line-height: 0.95;
+  max-width: 20ch;
+  margin: 16px 0;
+}
+.pass-art p {
+  font-size: 12px;
+  color: #d0d5c9;
+  line-height: 1.8;
+}
+.pass-information {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  padding: 30px 35px;
+}
+.pass-field-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+}
+.pass-information h3 {
+  font-family: var(--body);
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 10px;
+  letter-spacing: -0.035em;
+}
+.pass-information p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.pass-qr {
+  width: 145px;
+  flex-shrink: 0;
+  text-align: center;
+}
+.pass-qr canvas {
+  width: 145px !important;
+  height: 145px !important;
+  display: block;
+}
+.pass-qr span {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-top: 5px;
+}
+.pass-bottom-note {
+  padding: 16px 30px;
+  border-top: 1px dashed #bac5ad;
+  background: #e4eddb;
+  font-size: 11px;
+  text-align: center;
+}
+.pass-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 28px;
+}
+.pass-actions .button-light {
+  border: 1px solid var(--line);
+}
+.pass-message {
+  font-size: 13px;
+  margin-top: 18px;
+}
+.pass-small {
+  font-size: 11px;
+  color: var(--muted);
+  max-width: 65ch;
+  margin-top: 25px;
+}
+.digital-pass[data-theme="rose"] {
+  --green: #e7aec4;
+}
+.digital-pass[data-theme="ice"] {
+  --green: #b0dce2;
+}
+@media (max-width: 560px) {
+  .pass-main {
+    padding: 22px 16px 50px;
+  }
+  .pass-notice {
+    font-size: 12px;
+    padding: 13px 16px;
+  }
+  .pass-intro h1 {
+    font-size: 65px;
+  }
+  .pass-intro p {
+    font-size: 13px;
+  }
+  .pass-art {
+    height: 330px;
+  }
+  .pass-art > div {
+    padding: 25px;
+  }
+  .pass-art h2 {
+    font-size: 48px;
+  }
+  .pass-art .mini-mark {
+    font-size: 45px;
+  }
+  .pass-information {
+    padding: 25px;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  .pass-information h3 {
+    font-size: 22px;
+  }
+  .pass-qr {
+    width: 108px;
+  }
+  .pass-qr canvas {
+    width: 108px !important;
+    height: 108px !important;
+  }
+  .pass-qr span {
+    font-size: 8px;
+    letter-spacing: 0.04em;
+  }
+  .pass-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pass-actions .button {
+    width: 100%;
+  }
+  .pass-bottom-note {
+    padding: 15px 20px;
+    font-size: 10px;
+  }
+  .pass-small {
+    font-size: 10px;
+  }
+  .pass-body .site-header .brand-full {
+    display: none;
+  }
+}

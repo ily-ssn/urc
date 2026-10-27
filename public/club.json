@@ -7,5 +7,16 @@
   "instagramUrl": null,
   "stravaUrl": null,
   "contactEmail": null,
-  "events": []
+  "events": [],
+  "partners": [
+    {
+      "id": "luxenova",
+      "name": "Luxenova Studios",
+      "type": "Creative partner",
+      "contribution": "In-kind design and digital support",
+      "description": "Supporting the URC community through design, branding and its digital experience.",
+      "url": "https://luxenovastudios.com",
+      "logo": "/assets/luxenova-mark.png"
+    }
+  ]
 }

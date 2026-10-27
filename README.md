@@ -1,50 +1,35 @@
-# URC — Powerhouse Urban Run Club
+# Powerhouse Urban Run Club — Harare
 
-A responsive running-community website for Harare, Zimbabwe. Black, warm white and URC green; strong typography, local photography assets and accessible browser-native dialogs.
+A responsive black, warm-white and URC-green community site with an iPhone-first team workspace. Events connect their purpose, partner experiences, free passes, galleries and recaps.
 
-## Run locally
+## Local development
 
 ```sh
+npm ci --ignore-scripts --no-audit --no-fund
 npm run dev
 ```
 
-Open http://localhost:5180. No package dependencies, database credentials or API keys are required.
+Open http://localhost:5200. The website and explicitly labelled Studio/PDF design previews work without credentials. Real sign-in, publishing and registration require URC's dedicated Supabase project.
 
 ```sh
 npm run build
+npm test
 ```
 
-Checks document anchors, required assets and launch configuration, then copies the site to `dist/`. Vercel settings are included.
+The build checks assets and anchors, then bundles browser modules into `dist/`. The local review server mirrors clean routes and API handlers. Vercel settings and serverless APIs are included. Secrets must stay server-side in secure environment settings or an ignored `.env.local`.
 
-## Update the club
+## Product and operations
 
-Edit `public/club.json`:
+- [Team access, PDF passes and giving workflow](docs/TEAM-AND-GIVING.md)
+- [Product structure and future feature roadmap](docs/URC-BLUEPRINT.md)
+- [Reviewed database schema source](supabase/SCHEMA.sql) — not yet applied to a live URC project.
 
-- `city`: display location.
-- `joinUrl`: verified HTTPS registration or WhatsApp link. Left `null` until supplied by the owner. The site keeps an honest coming-soon state meanwhile.
-- `events`: confirmed upcoming events only. Each event needs `title`, an ISO `date` with timezone offset, `location` and an HTTPS `joinUrl`. Event times display in Africa/Harare.
+Attendance is free. Optional donations are recorded separately and never appear on a participant's pass. Cash, pending EcoCash references and confirmed transfers stay private to authorised team roles. No payment provider or merchandise checkout is simulated.
 
-Run cards describe proposed formats; they do not imply confirmed dates, routes or fees. The illustrated route is clearly labelled and is not a geographic map. No RSVP, payment, membership or email submission is simulated.
+Published content uses immutable snapshots until the next explicit Publish. Anonymous clients cannot read private draft payloads or draft media. Pass tokens are random bearer credentials stored only as hashes; no service key is included in browser bundles. Local database tests check permissions, draft isolation, private media, registration limits, check-in and donation verification. API checks cover unsafe browser keys, cross-origin writes and missing configuration.
 
-## Included interactions
+## Content and assets
 
-- URL-backed run-format filters.
-- Session detail dialogs with illustrative route preview.
-- A deterministic first-run finder. Beginners are directed to the social format; recommendations are not fitness assessments.
-- Optional device-local saved run preference, with a privacy delete control.
-- Full Field Notes articles and expandable FAQs.
-- Responsive navigation, keyboard focus handling, Escape dismissal and reduced-motion support.
+`public/club.json` holds launch defaults and the forthcoming verified community link. No invented events, attendance totals or unconfirmed sponsors are published. Homepage run cards describe proposed formats. Native dialogs provide run details, a deterministic pace finder and Field Notes; an optional saved format remains on the visitor's device. No advertising trackers or analytics are installed.
 
-## Privacy and security
-
-No analytics or advertising trackers. No personal information collection. Fonts and photos are served locally. The optional saved plan contains only the selected format and never leaves the device. External URLs are HTTPS-validated, and event/config content is rendered with `textContent` rather than injected HTML. Security headers and a restrictive Content Security Policy are in `vercel.json`.
-
-## Imagery and fonts
-
-Hero photography was generated for this design direction. Other reference photographs are sourced from Unsplash; origins are listed in `public/assets/sources.json`. They are illustrative and do not depict verified URC members. Replace them with the club’s own photographs when available.
-
-Typefaces: Barlow Condensed and Manrope, SIL Open Font License. Their local subsets and license files are bundled. The on-page wordmark is a typographic interpretation of the supplied identity; source logo artwork can be substituted later without rebuilding the layout.
-
-## Verification
-
-The initial release passed asset/anchor/configuration checks and browser flows at 1440px, 768px, 390px and 320px: filtering, run dialogs, focus restoration, pace selection, local preference deletion, article reading, FAQs, mobile menus and overflow checks. No browser exceptions were reported.
+Hero imagery was generated for this design direction; other reference photographs are from Unsplash and do not depict verified URC members. Origins are recorded in `public/assets/sources.json`. Replace with the club's own authorised photography. Local Barlow Condensed and Manrope font subsets include SIL Open Font Licenses. The wordmark is a typographic interpretation of the supplied identity.

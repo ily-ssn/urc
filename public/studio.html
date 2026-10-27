@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="theme-color" content="#11150f" />
+    <title>URC Studio — Team</title>
+    <link rel="icon" href="/assets/favicon.svg" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/studio.css" />
+    <script src="/studio.js" type="module"></script>
+  </head>
+  <body class="studio-body">
+    <header class="studio-header">
+      <a href="/" class="brand" aria-label="URC website"
+        ><span class="brand-mark">U<i>R</i>C</span
+        ><span class="brand-full">POWERHOUSE<br />URBAN RUN CLUB</span></a
+      ><span class="studio-label">STUDIO</span
+      ><a href="/" class="studio-site-link">View website ↗</a
+      ><button id="sign-out" hidden>Sign out</button>
+    </header>
+    <main class="studio-main">
+      <div id="studio-status" class="studio-notice" role="status">
+        Preparing your workspace…
+      </div>
+      <section id="login-panel" hidden>
+        <div class="login-card">
+          <span class="index">YOUR TEAM’S WORKSPACE</span>
+          <h1>HELLO,<br />TEAM.</h1>
+          <p>
+            Manage runs, photos and the URC community.<br />Sign in with your
+            invited team account.
+          </p>
+          <form id="login-form">
+            <label for="team-email">Email address</label
+            ><input
+              id="team-email"
+              type="email"
+              autocomplete="email"
+              required
+              placeholder="Your invited email"
+            /><button class="button button-dark" id="send-code" type="submit">
+              Send my code <span aria-hidden="true">→</span>
+            </button>
+          </form>
+          <form id="password-setup" hidden>
+            <label for="new-password">Create your own password</label
+            ><input
+              id="new-password"
+              type="password"
+              autocomplete="new-password"
+              minlength="12"
+              required
+              placeholder="At least 12 characters"
+            /><button class="button button-dark" type="submit">
+              Save password &amp; continue →
+            </button>
+          </form>
+          <form id="code-form" hidden>
+            <label for="email-code">Code from your email</label
+            ><input
+              id="email-code"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              minlength="6"
+              maxlength="8"
+              required
+              pattern="[0-9]{6,8}"
+              placeholder="Enter your code"
+            /><button class="button button-dark" type="submit">
+              Sign in <span aria-hidden="true">→</span></button
+            ><button type="button" class="text-button" id="change-email">
+              Use a different email
+            </button>
+          </form>
+          <p id="login-message" class="studio-message" role="status"></p>
+          <p class="login-footnote">
+            Invited team members only. No shared passwords.
+          </p>
+          <a
+            href="/studio?preview=1"
+            class="preview-link"
+            id="studio-preview-link"
+            >View the workspace layout ↗</a
+          >
+        </div>
+      </section>
+      <section id="workspace" hidden>
+        <div id="studio-home">
+          <div class="workspace-heading">
+            <div>
+              <span class="index">URC / HARARE</span>
+              <h1>LET’S KEEP<br />THINGS MOVING.</h1>
+              <p id="welcome-name">What would you like to do?</p>
+            </div>
+            <span class="workspace-date" id="workspace-date"></span>
+          </div>
+          <div class="task-grid">
+            <button class="task" data-section="team" id="team-task" hidden>
+              <span class="task-symbol"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="9" cy="7" r="3" />
+                  <path
+                    d="M3 21v-3a6 6 0 0 1 12 0v3M17 4a3 3 0 0 1 0 6M17 13a5 5 0 0 1 4 5v3"
+                  /></svg></span
+              ><strong>Team access</strong>
+              <p>Give a teammate a private, one-time setup link.</p>
+              <span class="task-action">Invite the team →</span></button
+            ><button class="task" data-section="event">
+              <span class="task-symbol"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 19 19 5M5 5h14v14" /></svg></span
+              ><strong>Runs</strong>
+              <p>Create a run, add its cause and update the details.</p>
+              <span class="task-action">Manage runs →</span></button
+            ><button class="task" data-section="album">
+              <span class="task-symbol"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="m3 16 6-6 5 5 3-3 4 4" />
+                  <circle cx="16" cy="8" r="1" /></svg></span
+              ><strong>Photos</strong>
+              <p>Choose a run, upload its photos and set the cover.</p>
+              <span class="task-action">Manage galleries →</span></button
+            ><button class="task" data-section="recap">
+              <span class="task-symbol"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6h16M4 12h16M4 18h11" /></svg></span
+              ><strong>Recaps</strong>
+              <p>Tell the story after a run. Add the moments that matter.</p>
+              <span class="task-action">Write a recap →</span></button
+            ><button class="task" data-section="partner">
+              <span class="task-symbol"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 4v16M4 12h16" /></svg></span
+              ><strong>Partners</strong>
+              <p>Show who supports URC and what they contribute.</p>
+              <span class="task-action">Manage partners →</span></button
+            ><button class="task" data-section="page">
+              <span class="task-symbol">Aa</span><strong>Website</strong>
+              <p>Update page copy, links and community announcements.</p>
+              <span class="task-action">Edit the website →</span></button
+            ><button class="task" data-section="day">
+              <span class="task-symbol"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M3 8V3h5M16 3h5v5M21 16v5h-5M8 21H3v-5M8 12l3 3 5-6"
+                  /></svg></span
+              ><strong>Event day</strong>
+              <p>Check in a free pass and record optional giving privately.</p>
+              <span class="task-action">Check-in & donations →</span></button
+            ><button class="task" data-section="shop">
+              <span class="task-symbol"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 7h14l1 14H4L5 7Z" />
+                  <path d="M9 7V5a3 3 0 0 1 6 0v2" /></svg></span
+              ><strong>Shop</strong>
+              <p>Products, sizes, stock and orders in one connected store.</p>
+              <span class="task-action">Store connection needed →</span>
+            </button>
+          </div>
+        </div>
+        <section id="studio-list" hidden>
+          <button class="back-button" id="back-home">← Studio home</button>
+          <div class="workspace-heading small">
+            <div>
+              <span class="index">YOUR CONTENT</span>
+              <h1 id="list-title">RUNS</h1>
+            </div>
+            <button id="new-entry" class="button button-dark">
+              Create new +
+            </button>
+          </div>
+          <div id="entry-list" class="entry-list"></div>
+        </section>
+        <section id="studio-editor" hidden>
+          <button class="back-button" id="back-list">← Back</button>
+          <div class="editor-heading">
+            <span class="index" id="editor-kind">NEW RUN</span>
+            <h1 id="editor-title">CREATE SOMETHING GOOD.</h1>
+            <p>Start with the essentials. Save a draft when you’re ready.</p>
+          </div>
+          <form id="entry-form">
+            <div class="editor-fields" id="editor-fields"></div>
+            <section id="photo-panel" hidden>
+              <div class="upload-zone">
+                <h2>ADD THE MOMENTS.</h2>
+                <p>
+                  Choose several photos from your phone or computer. Images are
+                  resized for the gallery and kept in the order you add them.
+                </p>
+                <input
+                  id="photo-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                /><button
+                  type="button"
+                  class="button button-dark"
+                  id="choose-photos"
+                >
+                  Choose photos +
+                </button>
+                <p id="upload-status" role="status"></p>
+              </div>
+              <div class="photo-grid" id="photo-grid"></div>
+            </section>
+            <div
+              id="entry-issues"
+              class="entry-issues"
+              role="alert"
+              hidden
+            ></div>
+            <div class="studio-savebar">
+              <span id="save-message" role="status">Draft</span
+              ><button
+                id="save-entry"
+                class="button button-light"
+                type="submit"
+              >
+                Save draft</button
+              ><button
+                id="publish-entry"
+                class="button button-dark"
+                type="button"
+              >
+                Publish
+              </button>
+            </div>
+          </form>
+        </section>
+        <section id="team-setup" hidden>
+          <button class="back-button" id="back-team">← Studio home</button>
+          <div class="setup-card">
+            <span class="index">OWNER ONLY</span>
+            <h1>YOUR PEOPLE.<br />THEIR OWN ACCESS.</h1>
+            <p>
+              Create a one-time setup link and share it directly with your
+              teammate. They choose their own password. No invitation email is
+              needed.
+            </p>
+            <form id="team-form" class="registration-form">
+              <label>Name<input name="name" maxlength="80" required /></label
+              ><label
+                >Email<input
+                  name="email"
+                  type="email"
+                  autocomplete="off"
+                  required /></label
+              ><label
+                >Access<select name="role">
+                  <option value="editor">
+                    Editor — runs, photos and donation recording
+                  </option>
+                  <option value="checkin">Event day — check-in only</option>
+                </select></label
+              ><button type="submit" class="button button-dark">
+                Create private setup link →
+              </button>
+            </form>
+            <p id="team-result" role="status"></p>
+            <div id="team-members"></div>
+            <div id="team-link-panel" hidden>
+              <label for="team-link">Private one-time link</label
+              ><input id="team-link" readonly autocomplete="off" /><button
+                id="copy-team-link"
+                class="button button-light"
+              >
+                Copy setup link
+              </button>
+              <p>
+                This link grants team access. Share it privately with that
+                person only. It expires according to the project’s
+                authentication settings.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section id="event-day" hidden>
+          <button class="back-button" id="back-day">← Studio home</button>
+          <div class="editor-heading">
+            <span class="index">FREE ATTENDANCE. OPTIONAL GIVING.</span>
+            <h1>WELCOME<br />THE CREW.</h1>
+            <p>
+              Check-in confirms attendance. Donation information is never shown
+              on the pass.
+            </p>
+          </div>
+          <div class="day-grid">
+            <section class="day-panel">
+              <h2>CHECK A PASS.</h2>
+              <button class="button button-light" id="scan-pass">
+                Scan a QR pass
+              </button>
+              <div id="scanner" hidden>
+                <video id="scanner-video" playsinline muted></video
+                ><button id="stop-scan" class="text-button">Stop camera</button>
+                <p>
+                  Point the camera at the pass QR. You can also type the code
+                  below.
+                </p>
+              </div>
+              <form id="checkin-form">
+                <label for="pass-reference"
+                  >Pass code or private pass link</label
+                ><input
+                  id="pass-reference"
+                  autocomplete="off"
+                  required
+                  placeholder="Enter a code, or paste the QR link"
+                /><button class="button button-dark" type="submit">
+                  Check in →
+                </button>
+              </form>
+              <p id="checkin-result" role="status"></p>
+              <p class="small-note">
+                Already used passes are clearly marked. No donation information
+                is requested.
+              </p>
+            </section>
+            <section class="day-panel" id="donation-panel">
+              <h2>RECORD A GIFT.</h2>
+              <form id="donation-form">
+                <label for="donation-event">Which event?</label
+                ><select id="donation-event" required></select>
+                <div class="donation-amount">
+                  <label
+                    >Amount<input
+                      id="donation-amount"
+                      type="text"
+                      inputmode="decimal"
+                      required
+                      placeholder="0.00" /></label
+                  ><label
+                    >Currency<select id="donation-currency">
+                      <option>USD</option>
+                      <option>ZWG</option>
+                    </select></label
+                  >
+                </div>
+                <label for="donation-method">How was it given?</label
+                ><select id="donation-method">
+                  <option value="cash">Cash received</option>
+                  <option value="ecocash">
+                    EcoCash — needs verification
+                  </option></select
+                ><label for="donation-reference"
+                  >Transaction reference (required for EcoCash)</label
+                ><input
+                  id="donation-reference"
+                  maxlength="120"
+                  placeholder="Optional for cash"
+                /><button class="button button-dark" type="submit">
+                  Record donation →
+                </button>
+              </form>
+              <p id="donation-result" role="status"></p>
+              <p class="small-note">
+                A gift may be anonymous. An entered EcoCash reference does not
+                confirm a transfer; the owner verifies it against the merchant
+                record.
+              </p>
+            </section>
+          </div>
+          <section class="donation-history" id="donation-history">
+            <h2>PRIVATE DONATION RECORDS.</h2>
+            <p class="small-note">
+              Editors see their own records. The owner can reconcile the full
+              ledger.
+            </p>
+            <div id="donation-totals"></div>
+            <button id="export-donations" class="text-button" hidden>
+              Download reconciliation summary (CSV) ↓
+            </button>
+            <p class="small-note">
+              The list shows the latest 25 records. Owner totals include all
+              records and keep currencies separate. Pending transfers are not
+              counted as confirmed giving.
+            </p>
+            <div id="donation-list"></div>
+          </section>
+        </section>
+        <section id="shop-setup" hidden>
+          <button class="back-button" id="back-shop">← Studio home</button>
+          <div class="setup-card">
+            <span class="index">URC SHOP</span>
+            <h1>THE RIGHT GEAR.<br />THE RIGHT CONNECTION.</h1>
+            <p>
+              A connected store will provide the real catalog, stock, orders and
+              checkout. Shopify is the recommended starting point. We’ll keep
+              the team’s product-editing workflow simple once the merchant
+              account is selected.
+            </p>
+            <p>No products, sales or payments are being simulated here.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+    <div id="studio-toast" class="toast" role="status" hidden></div>
+  </body>
+</html>

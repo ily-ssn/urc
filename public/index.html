@@ -60,14 +60,13 @@
     </svg>
     <header class="site-header">
       <a href="#" class="brand" aria-label="Powerhouse Urban Run Club — home"
-        ><span class="brand-mark"
-          >U<i>R</i>C<span class="brand-dot">®</span></span
+        ><span class="brand-mark">U<i>R</i>C</span
         ><span class="brand-full">POWERHOUSE<br />URBAN RUN CLUB</span></a
       >
       <nav class="desktop-nav" aria-label="Main navigation">
         <a href="#club">The club</a><a href="#runs">Our runs</a
-        ><a href="#community">The community</a
-        ><a href="#field-notes">Field notes</a>
+        ><a href="#community">The community</a><a href="/gallery">Gallery</a
+        ><a href="#partners">Partners</a>
       </nav>
       <div class="header-actions">
         <a class="button button-green header-join" href="#join"
@@ -138,8 +137,9 @@
       </section>
       <div class="club-strip" aria-label="Club values">
         <span>ALL PACES. ONE CREW.</span><span class="strip-star">✳</span
-        ><span>GOOD PEOPLE. SHARED MILES.</span><span class="strip-star">✳</span
-        ><span>THE CITY IS OUR TRACK.</span><span class="strip-star">✳</span>
+        ><span>GOOD PEOPLE. SHARED MILES.</span
+        ><span class="strip-star">✳</span><span>THE CITY IS OUR TRACK.</span
+        ><span class="strip-star">✳</span>
       </div>
       <section id="club" class="club-section section-pad">
         <div class="section-kicker">
@@ -157,7 +157,7 @@
             <p class="large-copy">
               A little movement.<br />A lot of connection.
             </p>
-            <p>
+            <p id="club-description">
               Powerhouse Urban Run Club is built around a simple idea: a shared
               run can turn a familiar street into something new. A new rhythm. A
               new friendship. A new reason to show up.
@@ -324,6 +324,7 @@
           ></a>
         </div>
         <div id="confirmed-events" class="confirmed-events"></div>
+        <a class="line-link" href="/events">All events &amp; free passes ↗</a>
       </section>
       <section id="community" class="community-section">
         <div class="community-photo">
@@ -516,8 +517,9 @@
               </svg>
             </summary>
             <p>
-              Membership and any event fees haven’t been announced yet. Any cost
-              will be shown clearly before you register.
+              Attendance is free. Giving is optional, and any donation supports
+              the event’s stated cause. Everyone is welcome, whether or not they
+              donate.
             </p>
           </details>
           <details name="faq">
@@ -532,6 +534,58 @@
               requirements on the event listing.
             </p>
           </details>
+        </div>
+      </section>
+      <section id="partners" class="partners-section section-pad">
+        <div class="section-kicker">
+          <span class="index">THE PEOPLE BEHIND THE POSSIBILITIES</span
+          ><span>GOOD PARTNERS. SHARED PURPOSE.</span>
+        </div>
+        <div class="section-heading">
+          <h2>EXTRA MILES.<br />SHARED IMPACT.</h2>
+          <p>
+            Some partners bring experiences. Others bring expertise.<br />Here’s
+            how they help the community move forward.
+          </p>
+        </div>
+        <div id="partner-grid" class="partner-grid">
+          <article class="partner-card">
+            <span class="partner-type">CREATIVE PARTNER</span>
+            <div class="partner-brand">
+              <img
+                src="/assets/luxenova-mark.png"
+                alt=""
+                width="40"
+                height="40"
+              /><strong>LUXENOVA<br />STUDIOS</strong>
+            </div>
+            <h3>DESIGN THAT GIVES BACK.</h3>
+            <p>
+              In-kind design and digital support, helping URC shape its identity
+              and bring its community online.
+            </p>
+            <a
+              href="https://luxenovastudios.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="line-link"
+              >Meet Luxenova
+              <svg aria-hidden="true"><use href="#diagonal" /></svg
+            ></a>
+          </article>
+          <article class="partner-invite">
+            <span class="index">BRING SOMETHING GOOD</span>
+            <h3>A LITTLE SUPPORT.<br />A LASTING DIFFERENCE.</h3>
+            <p>
+              A space for confirmed partners, their contribution and the
+              experiences they make possible. New collaborations will be shared
+              here.
+            </p>
+            <a class="text-button" href="#join"
+              >Connect with the crew
+              <svg aria-hidden="true"><use href="#diagonal" /></svg
+            ></a>
+          </article>
         </div>
       </section>
       <section id="join" class="join-section section-pad">
@@ -569,7 +623,9 @@
       >
       <div class="footer-links">
         <a href="#club">The club</a><a href="#runs">Our runs</a
-        ><a href="#field-notes">Field notes</a
+        ><a href="#field-notes">Field notes</a><a href="/events">Events</a
+        ><a href="/gallery">Gallery</a><a href="/impact">Impact</a
+        ><a href="/studio" class="team-link">Team sign-in</a
         ><button class="text-button" data-open="privacy">Privacy</button>
       </div>
       <div class="footer-bottom">
@@ -738,8 +794,9 @@
       <article>
         <h2 id="privacy-title">KEEPING IT SIMPLE.</h2>
         <p>
-          This site has no advertising trackers or third-party analytics.
-          Photography and fonts are served from the site itself.
+          This site has no advertising trackers or third-party analytics. Fonts
+          and reference photography are served locally. Published community
+          photos use URC’s media storage.
         </p>
         <p>
           If you save a first-run plan, only your chosen run format is stored in
@@ -750,6 +807,13 @@
           Delete my saved plan
         </button>
         <p id="privacy-status" role="status"></p>
+        <p>
+          When event registration is connected, we use your name and selected
+          activity to organise the run. Email and phone are optional and used
+          for event updates. Your pass link is private. Donation records are
+          separate and visible only to authorised team members. Contact a run
+          organiser to request correction or deletion of your details.
+        </p>
         <p>
           External registration or social links, when added, are covered by
           their own privacy policies.
