@@ -5,19 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "npm run build && node --env-file-if-exists=.env.local scripts/dev-server.mjs",
-    "check": "node --check public/app.js && node --check public/studio.js && node --check public/explore.js && node --check public/pass.js && node scripts/check.mjs",
+    "check": "node --check public/site.js && node --check public/network.js && node --check public/studio.js && node --check public/pass.js && node scripts/check.mjs",
     "build": "npm run check && node scripts/build.mjs",
     "test:db": "node tests/database.mjs",
-    "test": "node tests/api.mjs && npm run test:db"
+    "test": "node tests/api.mjs && node tests/revamp-api.mjs && npm run test:db && node tests/community-db.mjs",
+    "test:browser": "node tests/browser.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",
+    "ai": "7.0.155",
     "jsqr": "1.4.0",
     "pdf-lib": "1.17.1",
     "qrcode": "1.5.4"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.3.14",
-    "esbuild": "0.25.12"
+    "esbuild": "0.25.12",
+    "playwright-core": "1.64.0"
   }
 }

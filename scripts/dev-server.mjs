@@ -1,5 +1,5 @@
 import http from "node:http";
-import { readFile, stat } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 const root = path.resolve("dist"),
@@ -13,6 +13,8 @@ const types = {
   ".svg": "image/svg+xml",
   ".webp": "image/webp",
   ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
   ".ttf": "font/ttf",
 };
 http
@@ -24,6 +26,9 @@ http
       );
       if (pathname.startsWith("/api/")) {
         const name = pathname.slice(5);
+        req.query = Object.fromEntries(
+          new URL(req.url, "http://localhost").searchParams,
+        );
         if (
           ![
             "content",
@@ -31,6 +36,9 @@ http
             "pass",
             "studio/config",
             "studio/invite",
+            "community",
+            "page",
+            "assistant",
           ].includes(name)
         ) {
           res.writeHead(404).end();
@@ -69,8 +77,8 @@ http
           ? "index.html"
           : /\.[a-z0-9]+$/i.test(pathname)
             ? pathname.slice(1)
-            : /\/(events|gallery|impact|partners)(\/|$)/.test(pathname)
-              ? "explore.html"
+            : /^\/(events|gallery|impact|partners|community)\//.test(pathname)
+              ? pathname.split("/")[1] + ".html"
               : pathname.slice(1) + ".html";
       const resolved = path.resolve(root, file);
       if (!resolved.startsWith(root + path.sep)) {

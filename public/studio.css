@@ -255,6 +255,28 @@
   grid-template-columns: 1fr 1fr;
   gap: 22px;
 }
+.editor-group {
+  grid-column: 1 / -1;
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 20px;
+}
+.editor-group summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+}
+.editor-group-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 24px;
+}
+@media (max-width: 700px) {
+  .editor-group-fields {
+    grid-template-columns: 1fr;
+  }
+}
 .editor-field {
   min-width: 0;
   display: block;
@@ -793,4 +815,154 @@
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+.studio-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 24px 0;
+}
+.studio-metrics > div {
+  border: 1px solid var(--line);
+  padding: 24px;
+  background: var(--paper);
+}
+.studio-metrics strong {
+  display: block;
+  font: 700 44px var(--display);
+}
+.studio-metrics span {
+  display: block;
+  font-size: 12px;
+  margin-top: 8px;
+}
+.studio-attendance {
+  border: 1px solid var(--line);
+  padding: 24px;
+  margin-bottom: 30px;
+}
+.studio-attendance h2 {
+  font: 600 22px var(--body);
+  margin-bottom: 20px;
+}
+.studio-attendance > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.operations-panel {
+  border: 1px solid var(--line);
+  padding: 26px;
+  margin-block: 20px;
+}
+.operations-panel h2 {
+  font: 600 22px var(--body);
+  margin-bottom: 16px;
+}
+.operations-panel p {
+  font-size: 14px;
+  white-space: pre-line;
+}
+.operations-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+.operations-row p,
+.operations-row small {
+  font-size: 13px;
+}
+.participants-list {
+  margin-top: 20px;
+}
+#operations-content > label {
+  display: grid;
+  gap: 12px;
+  max-width: 500px;
+  margin-bottom: 24px;
+}
+.studio-photo label {
+  display: grid;
+  margin-bottom: 12px;
+}
+.photo-actions {
+  flex-wrap: wrap;
+}
+.task-symbol {
+  display: none;
+}
+.task-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.task {
+  min-height: 180px;
+}
+.workspace-heading h1 {
+  font-size: clamp(48px, 5.7vw, 82px);
+}
+.task strong {
+  font: 600 26px var(--body);
+  letter-spacing: -0.03em;
+}
+.task p {
+  font-size: 14px;
+}
+.studio-header {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.studio-site-link {
+  color: var(--ink);
+}
+.studio-header .brand-full {
+  color: var(--ink);
+}
+.studio-header .brand-mark {
+  color: var(--ink);
+}
+@media (max-width: 640px) {
+  .studio-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .studio-metrics > div {
+    padding: 18px;
+  }
+  .task-grid {
+    grid-template-columns: 1fr;
+  }
+  .task {
+    min-height: 150px;
+  }
+  .studio-attendance > div {
+    display: block;
+  }
+  .studio-attendance span {
+    display: block;
+    margin-top: 6px;
+  }
+  .operations-panel {
+    padding: 20px;
+  }
+  .workspace-heading h1 {
+    font-size: 52px;
+  }
+}
+.benefit-panel {
+  border: 1px solid var(--line);
+  padding: 20px;
+  margin-top: 20px;
+}
+.benefit-panel h3 {
+  font: 600 20px var(--body);
+}
+.benefit-panel p {
+  font-size: 13px;
+  margin-block: 12px;
 }

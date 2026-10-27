@@ -1,0 +1,524 @@
+import { chromium } from "playwright-core";
+import { spawn } from "node:child_process";
+import { readFile, writeFile } from "node:fs/promises";
+import assert from "node:assert/strict";
+const env = { ...process.env, PORT: "5202" };
+for (const k of [
+  "SUPABASE_URL",
+  "SUPABASE_PUBLISHABLE_KEY",
+  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "URC_AI_ENABLED",
+  "AI_GATEWAY_API_KEY",
+])
+  delete env[k];
+const server = spawn("node", ["scripts/dev-server.mjs"], {
+  env,
+  stdio: ["ignore", "pipe", "pipe"],
+});
+await new Promise((resolve, reject) => {
+  const timer = setTimeout(
+    () => reject(Error("Review server did not start.")),
+    10000,
+  );
+  server.stdout.on("data", (chunk) => {
+    if (String(chunk).includes("ready")) {
+      clearTimeout(timer);
+      resolve();
+    }
+  });
+  server.on("exit", (code) => reject(Error("Review server exited " + code)));
+});
+const browser = await chromium.launch({
+  executablePath: "/usr/bin/chromium",
+  args: ["--no-sandbox", "--disable-dev-shm-usage"],
+});
+const base = "http://127.0.0.1:5202",
+  checks = [],
+  errors = [];
+function watch(page) {
+  page.setDefaultTimeout(12000);
+  page.on("pageerror", (error) => errors.push(error.message));
+}
+const memberId = "44444444-4444-4444-8444-444444444444",
+  alice = "55555555-5555-4555-8555-555555555555",
+  eventId = "77777777-7777-4777-8777-777777777777";
+const native = {
+  id: eventId,
+  kind: "event",
+  title: "A local test run",
+  slug: "local-test-run",
+  status: "published",
+  revision: 1,
+  updated_at: "2026-10-27",
+  payload: {
+    startsAt: "2099-10-31T07:30:00+02:00",
+    endsAt: "2099-10-31T12:00:00+02:00",
+    purpose: "A local fixture for registration testing.",
+    location: "Test venue",
+    activities: "5 km;Walk",
+    activityOptions: "5 km\nWalk",
+    registration: "open",
+    registrationMode: "free-pass",
+    theme: "lime",
+  },
+};
+try {
+  const context = await browser.newContext({
+      viewport: { width: 1440, height: 1000 },
+      reducedMotion: "reduce",
+    }),
+    page = await context.newPage();
+  watch(page);
+  for (const [route, heading] of [
+    ["/", "URC."],
+    ["/events", "Find your run."],
+    ["/gallery", "The moments."],
+    ["/club", "Powerhouse."],
+    ["/first-run", "Your first run."],
+    ["/partners", "Good company."],
+    ["/impact", "A reason to run."],
+    ["/contact", "Let’s talk."],
+    ["/join", "Your place is out there."],
+    ["/shop", "Wear the club."],
+    ["/account", "Your URC."],
+    ["/community", "Urban Run Community."],
+    ["/privacy", "Your information."],
+  ]) {
+    await page.goto(base + route);
+    await page
+      .getByRole("heading", { name: heading, exact: true, level: 1 })
+      .waitFor();
+    assert.equal(await page.locator("h1").count(), 1, route);
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+      false,
+      route,
+    );
+    checks.push("Dedicated page " + route);
+  }
+  await page.goto(base + "/");
+  await page.getByRole("heading", { name: "URC.", exact: true }).waitFor();
+  await page.evaluate(() => document.fonts.ready);
+  assert.equal(await page.locator('img[src="/assets/hero.webp"]').count(), 0);
+  await page.screenshot({ path: "review/urc-home-desktop.png" });
+  checks.push("Homepage uses real supplied-organiser photography");
+  await page.goto(base + "/events/reset");
+  await page
+    .getByRole("heading", { name: "RESET", exact: true, level: 1 })
+    .waitFor();
+  const register = page.getByRole("link", { name: "Register for this run" });
+  assert.equal(
+    await register.getAttribute("href"),
+    "https://www.eventbrite.co.uk/e/reset-tickets-2003915635610",
+  );
+  assert.equal(
+    await page.getByRole("button", { name: "Get my free pass" }).count(),
+    0,
+  );
+  await page
+    .getByRole("button", { name: "Save this run", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Saved ✓", exact: true }).waitFor();
+  const calendarPromise = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Add to calendar", exact: false })
+    .click();
+  const calendar = await calendarPromise;
+  const bytes = await readFile(await calendar.path(), "utf8");
+  assert.ok(bytes.includes("DTSTART:20261031T053000Z"));
+  const posterPromise = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Download event poster", exact: false })
+    .click();
+  const poster = await posterPromise;
+  assert.match(poster.suggestedFilename(), /poster.png$/);
+  await page.screenshot({
+    path: "review/urc-reset-desktop.png",
+    fullPage: true,
+  });
+  checks.push(
+    "RESET uses verified Eventbrite registration, saved runs, correct calendar time and downloadable poster",
+  );
+  await page.goto(base + "/account");
+  await page.getByRole("heading", { name: "Your URC.", exact: true }).waitFor();
+  await page
+    .getByRole("list")
+    .filter({ has: page.getByRole("link", { name: "RESET", exact: true }) })
+    .waitFor();
+  checks.push("Saved runs persist on the device");
+  await page.goto(base + "/first-run");
+  await page
+    .getByText("Around 35 min on the route.", { exact: true })
+    .waitFor();
+  await page.getByLabel("Distance in kilometres").fill("10");
+  await page
+    .getByText("Around 1 hr 10 min on the route.", { exact: true })
+    .waitFor();
+  checks.push(
+    "First-run planner calculates duration from the visitor’s distance and pace",
+  );
+  await page.goto(base + "/gallery/from-the-community");
+  await page
+    .getByRole("heading", { name: "From the community", exact: true, level: 1 })
+    .waitFor();
+  await page.getByRole("button", { name: "View photo 1", exact: true }).click();
+  await page.getByRole("dialog", { name: "Gallery photo" }).waitFor();
+  await page.getByRole("button", { name: "Next photo", exact: true }).click();
+  await page.getByText("2 / 5", { exact: true }).waitFor();
+  await page.keyboard.press("ArrowLeft");
+  await page.getByText("1 / 5", { exact: true }).waitFor();
+  await page.keyboard.press("Escape");
+  await page.waitForURL(url => !url.hash);
+  assert.equal(new URL(page.url()).hash, "");
+  checks.push(
+    "Real community album supports full-screen keyboard photo navigation",
+  );
+  await page.goto(base + "/community?tab=people");
+  await page
+    .getByText("Member discovery is waiting for the URC account connection.", {
+      exact: false,
+    })
+    .waitFor();
+  await page.goto(base + "/community");
+  await page.getByRole("button", { name: "Follow URC", exact: true }).click();
+  await page.waitForURL("**/account?intent=follow-urc");
+  checks.push(
+    "Unconnected membership is explicit and following requires an account",
+  );
+  await page.goto(base + "/contact?topic=volunteer");
+  await page.getByLabel("Your name", { exact: true }).fill("Test person");
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("fixture@example.invalid");
+  await page
+    .getByLabel("Your message", { exact: true })
+    .fill("I would like to volunteer.");
+  await page.getByRole("button", { name: "Send to the team" }).click();
+  await page
+    .getByText("The URC message service is not connected yet.", {
+      exact: false,
+    })
+    .waitFor();
+  checks.push("Contact form fails honestly when the backend is unavailable");
+  for (const route of [
+    "/",
+    "/events/reset",
+    "/gallery/from-the-community",
+    "/community",
+    "/club",
+    "/first-run",
+    "/partners",
+    "/contact",
+    "/account",
+    "/shop",
+  ]) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(base + route);
+    await page.locator("h1").waitFor();
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+      false,
+      route + " on phone",
+    );
+  }
+  await page.goto(base + "/");
+  await page.getByRole("heading", { name: "URC.", exact: true }).waitFor();
+  await page.screenshot({ path: "review/urc-home-mobile.png", fullPage: true });
+  await page.getByLabel("Navigation menu", { exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "Mobile navigation" })
+    .getByRole("link", { name: "Community", exact: true })
+    .click();
+  await page.waitForURL("**/community");
+  checks.push(
+    "Ten phone layouts fit 390px and the mobile menu navigates to real pages",
+  );
+  await page.goto(base + "/studio?preview=1");
+  await page.getByRole("button", { name: /Participants/ }).click();
+  await page
+    .getByRole("heading", { name: "Participants", exact: true })
+    .waitFor();
+  await page
+    .getByRole("button", { name: "← Studio home", exact: true })
+    .click();
+  await page.getByRole("button", { name: /Manage runs/ }).click();
+  await page.getByRole("button", { name: "New run +", exact: true }).click();
+  assert.equal(
+    await page
+      .getByLabel("Optional participant limit", { exact: false })
+      .isVisible(),
+    false,
+  );
+  await page.getByText("2. Registration and updates", { exact: true }).click();
+  assert.equal(
+    await page
+      .getByLabel("Optional participant limit", { exact: false })
+      .isVisible(),
+    true,
+  );
+  await page.getByText("2. Registration and updates", { exact: true }).click();
+  await page.getByText("Writing assistant", { exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: "Draft from these notes with AI",
+      exact: true,
+    })
+    .click();
+  await page
+    .getByText("AI is disabled in the layout preview.", { exact: false })
+    .waitFor();
+  assert.equal(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > innerWidth,
+    ),
+    false,
+  );
+  await page.screenshot({
+    path: "review/urc-studio-mobile.png",
+    fullPage: true,
+  });
+  checks.push(
+    "Phone Studio routes to operations and AI preview cannot spend tokens",
+  );
+  await page.goto(base + "/pass?preview=1");
+  await page
+    .getByRole("button", { name: "Download PDF", exact: false })
+    .waitFor();
+  const pdfPromise = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Download PDF", exact: false })
+    .click();
+  const pdf = await pdfPromise;
+  assert.match(pdf.suggestedFilename(), /-preview.pdf$/);
+  assert.equal(
+    (await readFile(await pdf.path())).subarray(0, 4).toString(),
+    "%PDF",
+  );
+  checks.push("Preview pass generates a real, explicitly invalid sample PDF");
+  // Frontend integration fixtures exercise connected flows; permission rules are tested in PGlite.
+  const connected = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+    reducedMotion: "reduce",
+  });
+  const user = {
+    id: memberId,
+    email: "member@example.invalid",
+    aud: "authenticated",
+    role: "authenticated",
+    app_metadata: { provider: "email" },
+    user_metadata: {},
+  };
+  const jwt = [
+    { alg: "HS256", typ: "JWT" },
+    { sub: memberId, role: "authenticated", exp: 4102444800 },
+    "fixture",
+  ]
+    .map((x, i) =>
+      i < 2 ? Buffer.from(JSON.stringify(x)).toString("base64url") : x,
+    )
+    .join(".");
+  await connected.addInitScript(
+    (s) =>
+      localStorage.setItem(
+        "sb-ktfwfeuyrpvelvpdborw-auth-token",
+        JSON.stringify(s),
+      ),
+    {
+      access_token: jwt,
+      refresh_token: "fixture",
+      expires_at: 4102444800,
+      expires_in: 3600,
+      token_type: "bearer",
+      user,
+    },
+  );
+  let follows = [],
+    connection = {
+      id: "88888888-8888-4888-8888-888888888888",
+      requester: alice,
+      recipient: memberId,
+      status: "pending",
+    },
+    profile = {
+      display_name: "Test member",
+      handle: "test-member",
+      bio: "A public test profile",
+      public_profile: true,
+      connections_enabled: true,
+      news_opt_in: false,
+    },
+    savedProfile;
+  await connected.route("**/api/content", (route) =>
+    route.fulfill({ json: { configured: true, entries: [native] } }),
+  );
+  await connected.route("**/api/studio/config", (route) =>
+    route.fulfill({
+      json: {
+        configured: true,
+        url: "https://ktfwfeuyrpvelvpdborw.supabase.co",
+        publishableKey: "sb_publishable_fixture",
+        loginMethod: "password",
+      },
+    }),
+  );
+  await connected.route("**/api/community", (route) => {
+    const d = route.request().postDataJSON();
+    return route.fulfill({
+      json:
+        d.action === "people"
+          ? {
+              configured: true,
+              people: [
+                {
+                  user_id: alice,
+                  handle: "alice-runner",
+                  display_name: "Alice",
+                  bio: "A member in Harare",
+                  connections_enabled: true,
+                },
+                { user_id: memberId, ...profile },
+              ],
+            }
+          : { configured: true, stats: { followers: follows.length } },
+    });
+  });
+  await connected.route(
+    "https://ktfwfeuyrpvelvpdborw.supabase.co/**",
+    async (route) => {
+      const req = route.request(),
+        url = new URL(req.url()),
+        path = url.pathname.split("/").at(-1);
+      let data = [];
+      if (path === "user") data = user;
+      if (path === "urc_member_profiles") {
+        if (req.method() === "POST") {
+          savedProfile = req.postDataJSON();
+          profile = { ...profile, ...savedProfile };
+          data = null;
+        } else data = profile;
+      }
+      if (path === "urc_connections") data = [connection];
+      if (path === "urc_follows")
+        data = url.searchParams.has("subject_id")
+          ? (follows[0] ?? null)
+          : follows;
+      if (path === "urc_follow") {
+        const d = req.postDataJSON();
+        follows = d.following
+          ? [{ subject_type: d.target_type, subject_id: d.target_id }]
+          : [];
+        data = null;
+      }
+      if (path === "urc_connection_reply") {
+        connection.status = req.postDataJSON().decision;
+        data = null;
+      }
+      if (path === "urc_member_passes") data = [];
+      if (path === "urc_team")
+        data = { role: "owner", display_name: "Test organiser" };
+      if (path === "urc_entries") data = [native];
+      if (path === "urc_ops")
+        data = { registrations: 0, checkins: 0, requests: 0, events: [] };
+      await route.fulfill({
+        json: data,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers":
+            "authorization,apikey,x-client-info,content-type",
+        },
+      });
+    },
+  );
+  const memberPage = await connected.newPage();
+  watch(memberPage);
+  await memberPage.goto(base + "/community");
+  await memberPage
+    .getByRole("button", { name: "Follow URC", exact: true })
+    .click();
+  await memberPage
+    .getByRole("button", { name: "Following URC ✓", exact: true })
+    .waitFor();
+  assert.equal(follows[0].subject_id, "urc");
+  await memberPage.goto(base + "/account");
+  await memberPage
+    .getByRole("heading", { name: "Your member profile.", exact: true })
+    .waitFor();
+  await memberPage.getByRole("button", { name: "Accept", exact: true }).click();
+  await memberPage.getByText("accepted · Received", { exact: true }).waitFor();
+  await memberPage
+    .getByLabel("Display name", { exact: true })
+    .fill("Updated member");
+  await memberPage
+    .getByRole("button", { name: "Save profile", exact: false })
+    .click();
+  await memberPage.getByText("Profile saved.", { exact: true }).waitFor();
+  assert.equal(savedProfile.display_name, "Updated member");
+  assert.equal(savedProfile.news_opt_in, false);
+  checks.push(
+    "Connected member UI saves follows and private preferences and accepts a received connection request",
+  );
+  await memberPage.goto(base + "/events/local-test-run");
+  await memberPage
+    .getByRole("heading", { name: "A local test run", exact: true, level: 1 })
+    .waitFor();
+  await memberPage
+    .getByLabel("How many people?", { exact: true })
+    .selectOption("2");
+  await memberPage
+    .getByRole("button", { name: "Continue →", exact: true })
+    .click();
+  await memberPage
+    .getByLabel("Your name", { exact: true })
+    .fill("First runner");
+  await memberPage
+    .getByLabel("Participant 2 name", { exact: true })
+    .fill("Second runner");
+  await connected.route("**/api/register", async (route) => {
+    const d = route.request().postDataJSON();
+    assert.equal(d.companions[0].name, "Second runner");
+    await route.fulfill({
+      status: 201,
+      json: {
+        passes: [
+          { name: "First runner", path: "/pass#" + "a".repeat(43) },
+          { name: "Second runner", path: "/pass#" + "b".repeat(43) },
+        ],
+      },
+    });
+  });
+  await memberPage
+    .getByRole("button", { name: "Get my free pass →", exact: true })
+    .click();
+  await memberPage
+    .getByRole("heading", { name: "Your group is registered.", exact: true })
+    .waitFor();
+  assert.equal(
+    await memberPage.locator('#registration-form a[href^="/pass#"]').count(),
+    2,
+  );
+  checks.push(
+    "Guided group booking produces a separate private pass link for each participant",
+  );
+  assert.deepEqual(errors, []);
+  await writeFile(
+    "review/revamp-browser-results.json",
+    JSON.stringify(
+      {
+        checks,
+        errors,
+        note: "Local HTTP server; curated public sources plus explicit transport fixtures for connected member/group flows. No production registrations, private user reads or AI calls.",
+      },
+      null,
+      2,
+    ),
+  );
+  console.log(`PASS ${checks.length} URC browser checks.`);
+} finally {
+  await browser.close();
+  server.kill("SIGTERM");
+}

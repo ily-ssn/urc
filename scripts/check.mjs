@@ -1,28 +1,42 @@
 import { readFile, access } from "node:fs/promises";
 import assert from "node:assert/strict";
-const html = await readFile("public/index.html", "utf8"),
-  config = JSON.parse(await readFile("public/club.json", "utf8"));
-assert.equal((html.match(/<h1\b/g) || []).length, 1, "One page heading");
+import { pages, pageHtml } from "./pages.mjs";
+const config = JSON.parse(await readFile("public/club.json", "utf8"));
 assert.equal(config.name, "Powerhouse Urban Run Club");
 assert.equal(config.city, "Harare, Zimbabwe");
 assert.ok(
   config.joinUrl === null || new URL(config.joinUrl).protocol === "https:",
-  "Join link must use HTTPS",
 );
-for (const path of [
-  ...html.matchAll(/(?:src|href)="(\/[^"#?]+)(?:[?#][^"]*)?"/g),
-].map((x) => x[1]))
-  await access(
-    "public" +
-      (["/studio", "/pass"].includes(path)
-        ? path + ".html"
-        : ["/events", "/gallery", "/impact", "/partners"].includes(path)
-          ? "/explore.html"
-          : path),
-  );
-for (const path of [...html.matchAll(/href="#([^"\s]+)"/g)].map((x) => x[1]))
-  assert.ok(html.includes(`id="${path}"`), `Missing anchor ${path}`);
-assert.ok(html.includes("coming soon"), "Honest launch status");
+for (const key of Object.keys(pages)) {
+  const html = pageHtml(key);
+  assert.ok(html.includes(`data-page="${key}"`));
+  assert.ok(html.includes('<main id="main">'));
+  assert.ok(html.includes('name="description"'));
+  for (const [, p] of html.matchAll(
+    /(?:src|href)="(\/[^"#?]+)(?:[?#][^"]*)?"/g,
+  )) {
+    if (
+      Object.keys(pages).includes(p.slice(1)) ||
+      ["/studio", "/pass", "/"].includes(p)
+    )
+      continue;
+    await access("public" + p);
+  }
+}
+const data = JSON.parse(await readFile("public/community.json", "utf8"));
+for (const x of data.entries) {
+  assert.match(x.slug, /^[a-z0-9]+(-[a-z0-9]+)*$/);
+  for (const p of [
+    x.payload.coverUrl,
+    ...(x.payload.photos ?? []).map((p) => p.url),
+  ].filter(Boolean)) {
+    if (p.startsWith("/")) await access("public" + p);
+  }
+  if (x.kind === "event") {
+    assert.ok(Number.isFinite(Date.parse(x.payload.startsAt)));
+    assert.equal(new URL(x.payload.joinUrl).protocol, "https:");
+  }
+}
 console.log(
-  "URC: assets, anchors, document structure and launch configuration checked.",
+  `PASS: ${Object.keys(pages).length} page documents, local assets, verified source routes and community configuration.`,
 );

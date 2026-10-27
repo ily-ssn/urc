@@ -179,6 +179,130 @@ const fields = {
     ],
   ],
 };
+fields.event.push(
+  ["endsAt", "End time", "datetime-local", "Optional confirmed finish time."],
+  [
+    "activityOptions",
+    "Activity choices",
+    "textarea",
+    "One selectable distance or activity per line.",
+  ],
+  [
+    "registrationClosesAt",
+    "Registration closes",
+    "datetime-local",
+    "Leave empty to close at the start.",
+  ],
+  [
+    "eventStatus",
+    "Event status",
+    "eventStatus",
+    "Cancelled and postponed events cannot issue new passes.",
+  ],
+  [
+    "offerValidUntil",
+    "Partner benefit expires",
+    "datetime-local",
+    "A confirmed expiry is required for one-use benefit redemption.",
+  ],
+  [
+    "statusNote",
+    "Public status update",
+    "textarea",
+    "Explain a cancellation, postponement or change.",
+  ],
+  [
+    "waitlist",
+    "Waiting list",
+    "waitlist",
+    "For URC-managed registrations only. Requests need manual confirmation.",
+  ],
+  ["mapUrl", "Directions link", "url", "A confirmed https:// maps link."],
+  [
+    "arrival",
+    "Arrival and parking",
+    "textarea",
+    "Where to meet, when to arrive and parking information.",
+  ],
+  [
+    "itinerary",
+    "The plan for the day",
+    "textarea",
+    "One confirmed time or activity per line.",
+  ],
+  [
+    "accessibility",
+    "Accessibility information",
+    "textarea",
+    "Only describe facilities or support you have confirmed.",
+  ],
+  [
+    "checklist",
+    "What to bring",
+    "textarea",
+    "The practical essentials for this event.",
+  ],
+  [
+    "organiserContact",
+    "Event-day contact",
+    "text",
+    "A contact the organiser has approved for public display.",
+  ],
+  [
+    "cancellationPolicy",
+    "Registration and cancellation policy",
+    "textarea",
+    "Explain how participants can cancel or change plans.",
+  ],
+  [
+    "partnerIds",
+    "Partner profiles",
+    "partners",
+    "Choose the confirmed partners for this run.",
+  ],
+);
+fields.album.push(
+  [
+    "photographer",
+    "Photographer credit",
+    "text",
+    "Credit the photographer for the album.",
+  ],
+  [
+    "credit",
+    "Image rights and notes",
+    "textarea",
+    "A short public credit or usage note.",
+  ],
+);
+fields.recap.push(
+  [
+    "beneficiary",
+    "Beneficiary",
+    "text",
+    "The confirmed name of the person or organisation supported.",
+  ],
+  [
+    "reportDetails",
+    "Report and transfer information",
+    "textarea",
+    "Dated, verified information. Keep private financial documents out of public text.",
+  ],
+);
+fields.partner.push(
+  [
+    "summary",
+    "About the collaboration",
+    "textarea",
+    "Explain the work, experience or service.",
+  ],
+  [
+    "relatedEventIds",
+    "Linked run IDs",
+    "text",
+    "Optional comma-separated IDs of related runs.",
+  ],
+);
 function show(screen) {
   stopCamera();
   for (const id of [
@@ -188,9 +312,11 @@ function show(screen) {
     "shop-setup",
     "event-day",
     "team-setup",
+    "studio-operations",
   ])
     $("#" + id).hidden = id !== screen;
   window.scrollTo(0, 0);
+  if (screen === "studio-home") void renderOverview();
 }
 function message(text, error = false) {
   const box = $("#studio-status");
@@ -210,6 +336,357 @@ function make(tag, text, className) {
   if (className) el.className = className;
   return el;
 }
+async function renderOverview() {
+  const root = $("#studio-overview");
+  if (!root) return;
+  root.replaceChildren();
+  const stats = make("div", undefined, "studio-metrics");
+  for (const [label, value] of [
+    ["Published content", rows.filter((r) => r.status === "published").length],
+    [
+      "Drafts to finish",
+      rows.filter((r) => r.status !== "published" || r.has_unpublished_changes)
+        .length,
+    ],
+    ["Photo albums", rows.filter((r) => r.kind === "album").length],
+  ]) {
+    const tile = make("div");
+    tile.append(make("strong", String(value)), make("span", label));
+    stats.append(tile);
+  }
+  root.append(stats);
+  if (preview) {
+    root.append(
+      make(
+        "p",
+        "Preview counts reflect only drafts in this open layout. Real attendance, giving and messages require the connected URC database.",
+        "small-note",
+      ),
+    );
+    return;
+  }
+  try {
+    const { data, error } = await client.rpc("urc_ops", {
+      operation: "summary",
+    });
+    if (error) throw error;
+    const live = make("div", undefined, "studio-metrics");
+    for (const [label, value] of [
+      ["URC-managed registrations", data.registrations],
+      ["Checked in", data.checkins],
+      ["New requests", data.requests],
+    ])
+      if (value !== null) {
+        const tile = make("div");
+        tile.append(make("strong", String(value)), make("span", label));
+        live.append(tile);
+      }
+    root.append(live);
+    const chart = make("div", undefined, "studio-attendance");
+    chart.append(make("h2", "Attendance by run"));
+    for (const event of data.events ?? []) {
+      const row = make("div");
+      row.append(
+        make("strong", event.title || "Untitled run"),
+        make(
+          "span",
+          `${event.checked_in} checked in / ${event.registered} registered`,
+        ),
+      );
+      chart.append(row);
+    }
+    if (!(data.events ?? []).length)
+      chart.append(
+        make(
+          "p",
+          "No URC-managed attendance is recorded yet. Eventbrite registrations are managed on Eventbrite.",
+        ),
+      );
+    root.append(chart);
+  } catch {
+    root.append(
+      make(
+        "p",
+        "Attendance and message summaries need the community database update. Published content tools remain separate.",
+        "small-note",
+      ),
+    );
+  }
+}
+async function openOperations(section) {
+  show("studio-operations");
+  const root = $("#operations-content");
+  root.replaceChildren();
+  $("#operations-title").textContent = {
+    participants: "Participants",
+    inbox: "Requests & enquiries",
+    activity: "Team activity",
+    connections: "Connections & setup",
+  }[section];
+  if (section === "connections") {
+    const groups = [
+      [
+        "Eventbrite",
+        "The supplied organiser page and RESET event link are connected to public run pages. Eventbrite manages its own registrations and tickets.",
+      ],
+      [
+        "URC database",
+        preview
+          ? "This is a layout preview. No real account or content is connected."
+          : "Your signed-in team account controls access. The community extension is required for the new social and operations tools.",
+      ],
+      [
+        "Merchandise",
+        "No merchant platform has been selected. Checkout, stock and orders are not enabled.",
+      ],
+      [
+        "AI writing tools",
+        "The writing assistant is off unless the owner explicitly enables a provider and model. Daily limits apply; drafts require human review.",
+      ],
+      [
+        "Email reminders",
+        "Not connected. PDF passes download immediately without email delivery.",
+      ],
+    ];
+    for (const [title, text] of groups) {
+      const panel = make("section", undefined, "operations-panel");
+      panel.append(make("h2", title), make("p", text));
+      root.append(panel);
+    }
+    return;
+  }
+  if (preview) {
+    root.append(
+      make(
+        "p",
+        "This screen uses real registrations, requests and team activity after database setup. The layout preview does not contain pretend participant or donation records.",
+        "studio-empty",
+      ),
+    );
+    return;
+  }
+  if (section === "participants") {
+    const label = make("label", "Choose a URC-managed run"),
+      select = make("select");
+    for (const row of rows.filter((r) => r.kind === "event")) {
+      const option = make("option", row.title);
+      option.value = row.id;
+      select.append(option);
+    }
+    label.append(select);
+    root.append(label);
+    const body = make("div");
+    root.append(body);
+    let participants = [];
+    const render = () => {
+      body.replaceChildren();
+      const search = make("input");
+      search.type = "search";
+      search.placeholder = "Search name, activity or pass code";
+      search.setAttribute("aria-label", "Search participants");
+      body.append(search);
+      const exportButton = make(
+        "button",
+        "Export visible registrations (CSV) ↓",
+        "text-button",
+      );
+      body.append(exportButton);
+      const list = make("div", undefined, "participants-list");
+      body.append(list);
+      const filter = () => {
+        const q = search.value.toLowerCase();
+        return participants.filter((p) =>
+          [p.name, p.activity, p.passCode].join(" ").toLowerCase().includes(q),
+        );
+      };
+      const draw = () => {
+        list.replaceChildren();
+        for (const p of filter()) {
+          const row = make("div", undefined, "operations-row"),
+            info = make("div");
+          info.append(
+            make("strong", p.name),
+            make(
+              "p",
+              `${p.activity} · ${p.passCode} · ${p.status}${p.checkedInAt ? " · Checked in" : ""}`,
+            ),
+          );
+          if (p.email || p.phone)
+            info.append(
+              make("small", [p.email, p.phone].filter(Boolean).join(" · ")),
+            );
+          row.append(info);
+          if (p.checkedInAt && staff.role !== "checkin") {
+            const reverse = make("button", "Reverse check-in", "text-button");
+            reverse.onclick = async () => {
+              const reason = prompt(
+                "Why is this check-in being reversed? At least 20 characters.",
+              );
+              if (!reason || reason.trim().length < 20)
+                return toast("A reason of at least 20 characters is required.");
+              const { error } = await client.rpc("urc_ops", {
+                operation: "undo-checkin",
+                event_id: p.id,
+                details: { reason },
+              });
+              if (error) toast("Check-in could not be reversed.");
+              else {
+                p.checkedInAt = null;
+                draw();
+                toast("Check-in reversed and the reason recorded.");
+              }
+            };
+            row.append(reverse);
+          }
+          list.append(row);
+        }
+        if (!filter().length)
+          list.append(make("p", "No matching registrations."));
+      };
+      search.addEventListener("input", draw);
+      draw();
+      exportButton.onclick = () =>
+        exportCsv("urc-participants.csv", [
+          [
+            "Name",
+            "Activity",
+            "Pass code",
+            "Status",
+            "Check-in time",
+            "Email",
+            "Phone",
+          ],
+          ...filter().map((p) => [
+            p.name,
+            p.activity,
+            p.passCode,
+            p.status,
+            p.checkedInAt,
+            p.email,
+            p.phone,
+          ]),
+        ]);
+    };
+    const load = async () => {
+      if (!select.value) {
+        body.textContent =
+          "Create a URC-managed event to see its registrations here. Eventbrite tickets remain on Eventbrite.";
+        return;
+      }
+      body.textContent = "Loading registrations…";
+      const { data, error } = await client.rpc("urc_ops", {
+        operation: "participants",
+        event_id: select.value,
+      });
+      if (error) {
+        body.textContent =
+          "Registrations could not load. Check the database connection and your team permissions.";
+        return;
+      }
+      participants = data ?? [];
+      render();
+    };
+    select.addEventListener("change", load);
+    await load();
+    return;
+  }
+  root.textContent = "Loading…";
+  if (section === "activity") {
+    const { data, error } = await client.rpc("urc_ops", {
+      operation: "history",
+    });
+    root.replaceChildren();
+    if (error) {
+      root.append(
+        make(
+          "p",
+          "Activity could not load. The community database update and content-team access are required.",
+        ),
+      );
+      return;
+    }
+    for (const item of data ?? []) {
+      const row = make("div", undefined, "operations-row");
+      row.append(
+        make("strong", item.title || "Content update"),
+        make(
+          "p",
+          `${item.actor} · ${new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Harare" }).format(new Date(item.saved_at))} CAT`,
+        ),
+      );
+      root.append(row);
+    }
+    if (!data?.length)
+      root.append(make("p", "No previous saved revisions yet."));
+    return;
+  }
+  const { data, error } = await client
+    .from("urc_requests")
+    .select("id,kind,name,email,topic,message,status,created_at,event_id")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  root.replaceChildren();
+  if (error) {
+    root.append(
+      make(
+        "p",
+        "Requests could not load. The community database update and content-team access are required.",
+      ),
+    );
+    return;
+  }
+  for (const item of data ?? []) {
+    const row = make("article", undefined, "operations-panel");
+    row.append(
+      make("h2", `${item.name} · ${item.topic || item.kind}`),
+      make("p", item.message),
+      make("p", `${item.kind} · ${item.email}`),
+    );
+    const status = make("select");
+    status.setAttribute("aria-label", `Status for ${item.name}'s request`);
+    for (const value of ["new", "replied", "resolved"]) {
+      const option = make("option", value);
+      option.value = value;
+      status.append(option);
+    }
+    status.value = item.status;
+    status.onchange = async () => {
+      const { error } = await client
+        .from("urc_requests")
+        .update({ status: status.value })
+        .eq("id", item.id);
+      toast(error ? "Status could not be saved." : "Request status saved.");
+    };
+    row.append(status);
+    root.append(row);
+  }
+  if (!data?.length)
+    root.append(
+      make(
+        "p",
+        "No requests yet. Messages, volunteers, feedback and waiting-list requests will appear here.",
+      ),
+    );
+}
+function exportCsv(name, records) {
+  const cell = (value) =>
+    '"' +
+    String(value ?? "")
+      .replace(/^[=+\-@\t\r]/, "'$&")
+      .replaceAll('"', '""') +
+    '"';
+  const url = URL.createObjectURL(
+    new Blob([records.map((r) => r.map(cell).join(",")).join("\r\n")], {
+      type: "text/csv;charset=utf-8",
+    }),
+  );
+  const a = make("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+$("#back-operations").addEventListener("click", () => show("studio-home"));
 function leave() {
   return !dirty || confirm("You have unsaved changes. Leave this draft?");
 }
@@ -445,13 +922,17 @@ $$("[data-section]").forEach((button) =>
   button.addEventListener("click", () => {
     if (!leave()) return;
     dirty = false;
-    button.dataset.section === "shop"
-      ? show("shop-setup")
-      : button.dataset.section === "team"
-        ? openTeam()
-        : button.dataset.section === "day"
-          ? openEventDay()
-          : list(button.dataset.section);
+    ["participants", "inbox", "activity", "connections"].includes(
+      button.dataset.section,
+    )
+      ? openOperations(button.dataset.section)
+      : button.dataset.section === "shop"
+        ? show("shop-setup")
+        : button.dataset.section === "team"
+          ? openTeam()
+          : button.dataset.section === "day"
+            ? openEventDay()
+            : list(button.dataset.section);
   }),
 );
 $("#back-home").addEventListener("click", () => show("studio-home"));
@@ -499,12 +980,66 @@ function edit(row) {
       ? "Saved"
       : "New draft";
   $("#entry-issues").hidden = true;
+  $("#writing-notes").value = [
+    entry.title,
+    entry.payload.purpose ||
+      entry.payload.summary ||
+      entry.payload.contribution,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  $("#writing-result").value = "";
+  $("#writing-status").textContent = "";
   renderFields();
   renderPhotos();
 }
 function renderFields() {
   const root = $("#editor-fields");
   root.replaceChildren();
+  const groups = new Map();
+  const registrationKeys = [
+    "registration",
+    "registrationMode",
+    "capacity",
+    "joinUrl",
+    "activityOptions",
+    "registrationClosesAt",
+    "eventStatus",
+    "statusNote",
+    "waitlist",
+    "cancellationPolicy",
+  ];
+  const arrivalKeys = [
+    "endsAt",
+    "mapUrl",
+    "arrival",
+    "itinerary",
+    "accessibility",
+    "checklist",
+    "organiserContact",
+  ];
+  const partnerKeys = [
+    "partnerOffer",
+    "offerTerms",
+    "offerValidUntil",
+    "partnerIds",
+  ];
+  if (kind === "event") {
+    for (const [index, title] of [
+      "The essentials",
+      "Registration and updates",
+      "Arrival and the day’s plan",
+      "Partners and benefits",
+    ].entries()) {
+      const section = make("details", undefined, "editor-group");
+      section.open = index === 0;
+      section.append(make("summary", `${index + 1}. ${title}`));
+      const body = make("div", undefined, "editor-group-fields");
+      section.append(body);
+      root.append(section);
+      groups.set(index, body);
+    }
+  }
   for (const [key, label, type, hint] of fields[kind]) {
     const field = make(
       "label",
@@ -514,43 +1049,68 @@ function renderFields() {
     field.append(make("span", label));
     let input;
     if (
-      ["events", "select", "theme", "partnerType", "registrationMode"].includes(
-        type,
-      )
+      [
+        "events",
+        "select",
+        "theme",
+        "partnerType",
+        "registrationMode",
+        "eventStatus",
+        "waitlist",
+        "partners",
+      ].includes(type)
     ) {
       input = make("select");
       let choices =
-        type === "events"
+        type === "eventStatus"
           ? [
-              ["", "Choose a run"],
-              ...rows
-                .filter((row) => row.kind === "event")
-                .map((row) => [row.id, row.title]),
+              ["scheduled", "As planned"],
+              ["cancelled", "Cancelled"],
+              ["postponed", "Postponed"],
             ]
-          : type === "select"
+          : type === "waitlist"
             ? [
-                ["coming-soon", "Coming soon"],
-                ["open", "Registration open"],
-                ["closed", "Registration closed"],
+                ["no", "No waiting list"],
+                ["yes", "Accept waiting-list requests"],
               ]
-            : type === "registrationMode"
+            : type === "partners"
               ? [
-                  ["free-pass", "Free URC PDF pass"],
-                  ["external", "External registration link"],
+                  ["", "No linked partner"],
+                  ...rows
+                    .filter((r) => r.kind === "partner")
+                    .map((r) => [r.id, r.title]),
                 ]
-              : type === "theme"
+              : type === "events"
                 ? [
-                    ["lime", "URC green"],
-                    ["rose", "Awareness / rose"],
-                    ["ice", "Recovery / ice"],
+                    ["", "Choose a run"],
+                    ...rows
+                      .filter((row) => row.kind === "event")
+                      .map((row) => [row.id, row.title]),
                   ]
-                : [
-                    ["in-kind", "In-kind services"],
-                    ["donation", "Financial support"],
-                    ["venue", "Venue or space"],
-                    ["offer", "Participant discount"],
-                    ["experience", "Experience or recovery"],
-                  ];
+                : type === "select"
+                  ? [
+                      ["coming-soon", "Coming soon"],
+                      ["open", "Registration open"],
+                      ["closed", "Registration closed"],
+                    ]
+                  : type === "registrationMode"
+                    ? [
+                        ["free-pass", "Free URC PDF pass"],
+                        ["external", "External registration link"],
+                      ]
+                    : type === "theme"
+                      ? [
+                          ["lime", "URC green"],
+                          ["rose", "Awareness / rose"],
+                          ["ice", "Recovery / ice"],
+                        ]
+                      : [
+                          ["in-kind", "In-kind services"],
+                          ["donation", "Financial support"],
+                          ["venue", "Venue or space"],
+                          ["offer", "Participant discount"],
+                          ["experience", "Experience or recovery"],
+                        ];
       for (const [value, text] of choices) {
         const option = make("option", text);
         option.value = value;
@@ -585,7 +1145,14 @@ function renderFields() {
       $("#save-message").textContent = "Unsaved changes";
     });
     field.append(input, make("small", hint));
-    root.append(field);
+    const group = registrationKeys.includes(key)
+      ? 1
+      : arrivalKeys.includes(key)
+        ? 2
+        : partnerKeys.includes(key)
+          ? 3
+          : 0;
+    (groups.get(group) || root).append(field);
   }
 }
 async function save(publish = false) {
@@ -785,6 +1352,7 @@ async function renderPhotos() {
     const card = make("div", undefined, "studio-photo"),
       image = make("img");
     image.alt = photo.alt || photo.caption || "Gallery photo";
+    if (photo.url && /^\/assets\//.test(photo.url)) image.src = photo.url;
     if (client && photo.path) {
       const { data } = await client.storage
         .from("urc-media")
@@ -825,7 +1393,42 @@ async function renderPhotos() {
       }
     });
     actions.append(cover, remove);
-    controls.append(label, actions);
+    const altLabel = make("label", "Image description"),
+      altInput = make("input"),
+      creditLabel = make("label", "Photographer / credit"),
+      creditInput = make("input");
+    altInput.value = photo.alt ?? "";
+    creditInput.value = photo.credit ?? "";
+    altInput.maxLength = 250;
+    creditInput.maxLength = 160;
+    altInput.addEventListener("input", () => {
+      photo.alt = altInput.value;
+      dirty = true;
+    });
+    creditInput.addEventListener("input", () => {
+      photo.credit = creditInput.value;
+      dirty = true;
+    });
+    altLabel.append(altInput);
+    creditLabel.append(creditInput);
+    const earlier = make("button", "Move earlier"),
+      later = make("button", "Move later");
+    earlier.type = later.type = "button";
+    earlier.disabled = index === 0;
+    later.disabled = index === entry.payload.photos.length - 1;
+    for (const [control, delta] of [
+      [earlier, -1],
+      [later, 1],
+    ])
+      control.addEventListener("click", () => {
+        const a = entry.payload.photos;
+        [a[index], a[index + delta]] = [a[index + delta], a[index]];
+        entry.payload.coverPath = a[0]?.path ?? null;
+        dirty = true;
+        renderPhotos();
+      });
+    actions.append(earlier, later);
+    controls.append(label, altLabel, creditLabel, actions);
     card.append(image, controls);
     root.append(card);
   }
@@ -893,6 +1496,46 @@ $("#checkin-form").addEventListener("submit", async (event) => {
     $("#checkin-result").textContent = data.alreadyUsed
       ? `Already checked in: ${data.name} · ${data.event}. Check with the run lead before admitting again.`
       : `Welcome, ${data.name}. Check-in confirmed for ${data.event}.`;
+    const benefit = $("#benefit-status");
+    benefit.replaceChildren();
+    const result = await client.rpc("urc_benefit", {
+      pass_reference: reference,
+      redeem: false,
+    });
+    if (!result.error && result.data) {
+      const offer = result.data;
+      benefit.className = "benefit-panel";
+      benefit.append(make("h3", offer.offer), make("p", offer.terms));
+      if (offer.redeemedAt)
+        benefit.append(make("p", "This benefit has already been redeemed."));
+      else {
+        const redeem = make(
+          "button",
+          "Record benefit redeemed",
+          "button button-dark",
+        );
+        redeem.type = "button";
+        redeem.onclick = async () => {
+          if (
+            !confirm(
+              "Record this participant’s one-use partner benefit as redeemed?",
+            )
+          )
+            return;
+          redeem.disabled = true;
+          const { data, error } = await client.rpc("urc_benefit", {
+            pass_reference: reference,
+            redeem: true,
+          });
+          redeem.textContent = error
+            ? "Could not redeem. Check with the organiser."
+            : data?.redeemedAt
+              ? "Benefit redemption recorded"
+              : "No active benefit";
+        };
+        benefit.append(redeem);
+      }
+    }
   } catch (error) {
     $("#checkin-result").textContent =
       error.message || "The pass could not be checked. Try again.";
@@ -1287,3 +1930,62 @@ async function openTeam() {
 }
 
 init();
+
+$("#request-writing").addEventListener("click", async () => {
+  if (preview) {
+    $("#writing-status").textContent =
+      "AI is disabled in the layout preview. No provider request was made.";
+    return;
+  }
+  const notes = $("#writing-notes").value.trim();
+  if (notes.length < 20) {
+    $("#writing-status").textContent =
+      "Add at least 20 characters of confirmed notes.";
+    return;
+  }
+  const b = $("#request-writing");
+  b.disabled = true;
+  $("#writing-status").textContent = "Preparing a draft for review…";
+  try {
+    const {
+      data: { session },
+    } = await client.auth.getSession();
+    const r = await fetch("/api/assistant", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + session.access_token,
+      },
+      body: JSON.stringify({ task: $("#writing-task").value, notes }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw Error(d.error || "A draft could not be prepared.");
+    $("#writing-result").value = d.draft;
+    $("#writing-status").textContent =
+      "Review every fact before applying. Your saved content is unchanged.";
+  } catch (err) {
+    $("#writing-status").textContent = err.message;
+  } finally {
+    b.disabled = false;
+  }
+});
+$("#apply-writing").addEventListener("click", () => {
+  if (!entry || !$("#writing-result").value.trim()) return;
+  const field =
+    kind === "event"
+      ? "purpose"
+      : kind === "partner"
+        ? "contribution"
+        : "summary";
+  if (
+    !confirm(
+      "Replace this draft’s description with the reviewed text? This will not publish it.",
+    )
+  )
+    return;
+  entry.payload[field] = $("#writing-result").value.trim();
+  dirty = true;
+  renderFields();
+  $("#save-message").textContent = "Unsaved changes";
+  toast("Reviewed text applied to the draft. Save when ready.");
+});

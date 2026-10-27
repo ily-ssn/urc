@@ -3,8 +3,8 @@
   "shortName": "URC",
   "tagline": "A lifestyle in motion.",
   "city": "Harare, Zimbabwe",
-  "joinUrl": null,
-  "instagramUrl": null,
+  "joinUrl": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463",
+  "instagramUrl": "https://www.instagram.com/powerhouseforcommunities/",
   "stravaUrl": null,
   "contactEmail": null,
   "events": [],
@@ -18,5 +18,7 @@
       "url": "https://luxenovastudios.com",
       "logo": "/assets/luxenova-mark.png"
     }
-  ]
+  ],
+  "tiktokUrl": "https://www.tiktok.com/@urbanruncommunity",
+  "eventbriteUrl": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463"
 }

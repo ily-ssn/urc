@@ -1,0 +1,85 @@
+{
+  "source": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463",
+  "checkedAt": "2026-10-27",
+  "entries": [
+    {
+      "id": "eventbrite-2003915635610",
+      "kind": "event",
+      "title": "RESET",
+      "slug": "reset",
+      "payload": {
+        "startsAt": "2026-10-31T07:30:00+02:00",
+        "endsAt": "2026-10-31T12:00:00+02:00",
+        "location": "56 Kingsmead Road, Harare",
+        "activities": "Community run. Distance and pace details: confirm with the organiser.",
+        "purpose": "A fitness and wellness event combining a community run, cold water therapy and heat recovery.",
+        "partnerOffer": "Run \u00b7 cold plunge \u00b7 sauna",
+        "offerTerms": "Check the Eventbrite listing for the latest participation and recovery-session details.",
+        "arrival": "Arrival from 07:10. Free parking is listed by the organiser. Ages 16 and over.",
+        "itinerary": "07:10 \u2014 Arrival\n07:30 \u2014 Event begins\nCommunity run followed by cold plunge and sauna\n12:00 \u2014 Event ends",
+        "registration": "open",
+        "registrationMode": "external",
+        "joinUrl": "https://www.eventbrite.co.uk/e/reset-tickets-2003915635610",
+        "mapUrl": "https://www.google.com/maps/search/?api=1&query=56+Kingsmead+Road+Harare",
+        "theme": "ice",
+        "coverUrl": "/assets/reset.jpg",
+        "coverAlt": "RESET event poster: run, cold plunge, sauna",
+        "sourceUrl": "https://www.eventbrite.co.uk/e/reset-tickets-2003915635610",
+        "sourceCheckedAt": "2026-10-27",
+        "cancellationPolicy": "Registration is managed on Eventbrite. Use your Eventbrite confirmation and the organiser\u2019s instructions for ticket changes.",
+        "registrationClosesAt": "2026-10-31T06:30:00+02:00"
+      }
+    },
+    {
+      "id": "urc-community-highlights",
+      "kind": "album",
+      "title": "From the community",
+      "slug": "from-the-community",
+      "payload": {
+        "summary": "Photographs shared on the URC organiser profile. A collection of community moments, rather than a dated event recap.",
+        "category": "Community highlights",
+        "coverUrl": "/assets/urc-moment-1.jpg",
+        "sourceUrl": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463",
+        "photos": [
+          {
+            "url": "/assets/urc-moment-1.jpg",
+            "alt": "URC community photograph 1, from the organiser\u2019s Eventbrite profile",
+            "credit": "Urban Run Community / Eventbrite organiser media"
+          },
+          {
+            "url": "/assets/urc-moment-2.jpg",
+            "alt": "URC community photograph 2, from the organiser\u2019s Eventbrite profile",
+            "credit": "Urban Run Community / Eventbrite organiser media"
+          },
+          {
+            "url": "/assets/urc-moment-3.jpg",
+            "alt": "URC community photograph 3, from the organiser\u2019s Eventbrite profile",
+            "credit": "Urban Run Community / Eventbrite organiser media"
+          },
+          {
+            "url": "/assets/urc-moment-4.jpg",
+            "alt": "URC community photograph 4, from the organiser\u2019s Eventbrite profile",
+            "credit": "Urban Run Community / Eventbrite organiser media"
+          },
+          {
+            "url": "/assets/urc-moment-5.jpg",
+            "alt": "URC community photograph 5, from the organiser\u2019s Eventbrite profile",
+            "credit": "Urban Run Community / Eventbrite organiser media"
+          }
+        ]
+      }
+    },
+    {
+      "id": "urc-homepage",
+      "kind": "page",
+      "title": "Homepage introduction",
+      "slug": "homepage-introduction",
+      "payload": {
+        "coverUrl": "/assets/urc-community.jpg",
+        "coverAlt": "Urban Run Community members together in Harare",
+        "summary": "Movement, wellness and shared experiences in Harare. URC brings people together through community runs, fitness events and collaborations.",
+        "joinUrl": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463"
+      }
+    }
+  ]
+}

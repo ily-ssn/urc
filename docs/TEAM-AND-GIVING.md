@@ -23,11 +23,11 @@ For online giving later, select a Zimbabwe-supported merchant provider after che
 
 ## Connect the dedicated Supabase project
 
-The owner is creating this project. Use only URC's project; never apply this schema to Luxenova or Richo.
+Use only URC's confirmed project `ktfwfeuyrpvelvpdborw`; never apply these schemas to Luxenova or Richo. Backend configuration rejects any other Supabase hostname. The connector currently denies access to this project, so no live migration or live authentication verification has been performed.
 
-1. Review `supabase/SCHEMA.sql`, apply it once as a tracked migration to the new project, and verify policies there. Its test fixture is not production data.
+1. Review `supabase/SCHEMA.sql` and then `supabase/COMMUNITY.sql`, apply them in that order as tracked migrations, and verify policies there. Test fixtures are not production data. The additive schema supplies member permissions, private connections, grouped registrations, request limits and operations.
 2. Configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (or the legacy anon key), and server-only `SUPABASE_SERVICE_ROLE_KEY` through secure hosting settings. Never paste credentials into chat, commit them, or prefix the service key for browser exposure. The browser configuration endpoint rejects service/secret keys in the public-key field.
-3. Disable public user signup in Auth. Create the first owner user in the Auth dashboard, then add their real Auth user ID to `urc_team` with role `owner` and their display name. Never use a shared team password. Set the intended site URL and allowlisted redirects. Enable strong password protections available on the project.
+3. Create the first owner user in the Auth dashboard, then add their real Auth user ID to `urc_team` with role `owner` and their display name. The intended owner email is `fijibleee@gmail.com`; this document does not create that account. Public member signup can be enabled for Community after email confirmation, redirect allowlists and policies are verified. A member signup never creates a team role. Never use a shared team password. Set the intended site URL and allowlisted redirects. Enable strong password protections available on the project.
 4. Verify sign-in, password setup, sign-out, role revocation, draft saves, publication, media access, a real test registration, PDF retrieval, check-in and the private ledger against the connected project. Remove test content afterward.
 5. The owner can then create Wayne and Vaughn's one-time setup links inside Studio. Share those links privately with the intended person. They choose their own password. No invitation email is sent. The owner can also remove editor/check-in access in the team panel; database permissions stop subsequent privileged requests immediately. Owner accounts are protected from that removal form. Existing non-owner team accounts can receive a fresh setup link through the same form.
 6. Email-code sign-in is optional: set `STUDIO_EMAIL_OTP_ENABLED=true` only after appropriate email delivery and code templates are configured. Password sign-in is the default and does not consume an email on every login.
@@ -45,6 +45,6 @@ Owner/editor/check-in access is enforced by database policies and guarded functi
 
 ## Before a public launch
 
-Supply the confirmed join link, first event, beneficiary details, event-day contact and appropriate privacy/contact details. Replace reference photography with photos the club has permission to publish. Establish photo-removal and data-correction/deletion handling, retention periods, cash handover and transfer verification procedures. Validate owner access and all real connected flows before opening registration.
+The confirmed organiser link, RESET listing and public organiser photographs are included. Supply any additional community join link, beneficiary details, event-day contact and appropriate privacy/contact details. The photo ZIP is still pending. Establish photo-removal and data-correction/deletion handling, retention periods, cash handover and transfer verification procedures. Validate owner access and all real connected flows before opening native URC registration.
 
 Future work is listed separately in `URC-BLUEPRINT.md`; it is a roadmap, not a claim that all proposed features are shipped.

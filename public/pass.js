@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
 import { makePassPdf } from "../lib/pass-pdf.js";
+import { calendarFile, safeUrl } from "../lib/public.js";
 const $ = (s) => document.querySelector(s),
   preview = new URL(location.href).searchParams.get("preview") === "1";
 let pass = null,
@@ -49,6 +50,20 @@ async function init() {
         "You’re registered. Download your PDF or save your private pass link.";
     }
     const event = pass.event;
+    $("#pass-event-link").href =
+      "/events/" + encodeURIComponent(event.slug ?? "");
+    $("#pass-day-information").textContent =
+      event.payload.itinerary ||
+      event.payload.arrival ||
+      "Check the event page for the latest arrival and schedule information.";
+    if (safeUrl(event.payload.mapUrl)) {
+      $("#pass-map-link").href = safeUrl(event.payload.mapUrl);
+      $("#pass-map-link").hidden = false;
+      $("#pass-map-link").target = "_blank";
+      $("#pass-map-link").rel = "noopener noreferrer";
+    }
+    $("#pass-calendar").hidden = !event.payload.startsAt;
+    $("#cancel-pass").disabled = preview;
     $("#digital-pass").dataset.theme = ["lime", "rose", "ice"].includes(
       event.payload.theme,
     )
@@ -114,6 +129,52 @@ $("#download-pass").addEventListener("click", async () => {
       "The PDF could not be prepared. Try again; your pass link is still here.";
   } finally {
     button.disabled = false;
+  }
+});
+$("#pass-calendar").addEventListener("click", () => {
+  if (!pass) return;
+  const url = URL.createObjectURL(
+      new Blob(
+        [
+          calendarFile(
+            { ...pass.event, id: pass.event.id || pass.passCode },
+            location.origin,
+          ),
+        ],
+        { type: "text/calendar" },
+      ),
+    ),
+    a = document.createElement("a");
+  a.href = url;
+  a.download = "urc-event.ics";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+});
+$("#cancel-pass").addEventListener("click", async () => {
+  if (
+    preview ||
+    !pass ||
+    !confirm("Cancel your place at this run? Your pass will stop being valid.")
+  )
+    return;
+  const b = $("#cancel-pass");
+  b.disabled = true;
+  try {
+    const response = await fetch("/api/pass", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: location.hash.slice(1), action: "cancel" }),
+    });
+    const data = await response.json();
+    if (!response.ok)
+      throw Error(data.error || "Cancellation could not finish.");
+    $("#pass-notice").textContent =
+      "Your registration is cancelled. Your old QR pass is no longer valid.";
+    $("#download-pass").disabled = true;
+    $("#pass-card").hidden = true;
+  } catch (err) {
+    $("#pass-message").textContent = err.message;
+    b.disabled = false;
   }
 });
 $("#copy-pass").addEventListener("click", async () => {

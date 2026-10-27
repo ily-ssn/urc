@@ -1,10 +1,5 @@
 {
-  "photography": {
-    "social.jpg": "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1000&q=85",
-    "distance.jpg": "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=1000&q=85",
-    "track.jpg": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1000&q=85",
-    "community.jpg": "https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&w=1300&q=85"
-  },
-  "note": "Reference photography and generated hero demonstrate visual direction. They do not depict verified URC members.",
+  "photographyManifest": "/assets/urc-eventbrite-sources.json",
+  "note": "The current build uses authentic organiser photographs from the URL supplied by the owner. Earlier reference photographs and the generated hero have been removed.",
   "fonts": "Barlow Condensed and Manrope, Google Fonts / SIL Open Font License"
 }

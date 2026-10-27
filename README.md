@@ -16,13 +16,14 @@ npm run build
 npm test
 ```
 
-The build checks assets and anchors, then bundles browser modules into `dist/`. The local review server mirrors clean routes and API handlers. Vercel settings and serverless APIs are included. Secrets must stay server-side in secure environment settings or an ignored `.env.local`.
+The build generates 13 page documents, checks routes and assets, then bundles browser modules into `dist/`. The local review server serves clean routes and API handlers. Vercel also renders event, gallery, partner and impact sharing metadata through `api/page.js`. Secrets must stay server-side in secure environment settings or an ignored `.env.local`.
 
 ## Product and operations
 
 - [Team access, PDF passes and giving workflow](docs/TEAM-AND-GIVING.md)
 - [Product structure and future feature roadmap](docs/URC-BLUEPRINT.md)
-- [Reviewed database schema source](supabase/SCHEMA.sql) — not yet applied to a live URC project.
+- [Release scope, verification and activation checklist](docs/REVAMP-STATUS.md)
+- [Base database schema](supabase/SCHEMA.sql) and [additive Community schema](supabase/COMMUNITY.sql) — not yet applied to a live URC project. Apply in that order.
 
 Attendance is free. Optional donations are recorded separately and never appear on a participant's pass. Cash, pending EcoCash references and confirmed transfers stay private to authorised team roles. No payment provider or merchandise checkout is simulated.
 
@@ -30,6 +31,8 @@ Published content uses immutable snapshots until the next explicit Publish. Anon
 
 ## Content and assets
 
-`public/club.json` holds launch defaults and the forthcoming verified community link. No invented events, attendance totals or unconfirmed sponsors are published. Homepage run cards describe proposed formats. Native dialogs provide run details, a deterministic pace finder and Field Notes; an optional saved format remains on the visitor's device. No advertising trackers or analytics are installed.
+`public/club.json` holds launch defaults and verified organiser/social links. `public/community.json` contains reviewed public Eventbrite content, checked on 27 October 2026. RESET registers through Eventbrite; it does not issue a second URC pass. Device-only saved runs and a first-run checklist work without an account. No advertising trackers or analytics are installed.
 
-Hero imagery was generated for this design direction; other reference photographs are from Unsplash and do not depict verified URC members. Origins are recorded in `public/assets/sources.json`. Replace with the club's own authorised photography. Local Barlow Condensed and Manrope font subsets include SIL Open Font Licenses. The wordmark is a typographic interpretation of the supplied identity.
+The homepage and gallery use photographs from the organiser page supplied by the owner. Origins are recorded in `public/assets/urc-eventbrite-sources.json`. Generated hero/reference photographs have been removed. The community collection is not presented as a dated event recap. The owner's photo ZIP is still pending. Local Barlow Condensed and Manrope subsets include SIL Open Font Licenses. The wordmark is a typographic interpretation of the supplied identity.
+
+Run `npm run test:browser` after a build for public, phone, Studio preview, PDF and simulated connected-member flows. Database checks exercise actual policies in isolated PGlite; browser transport fixtures are not proof of a working production connection. `npm audit --omit=dev` checks published dependency advisories, not all possible application vulnerabilities.

@@ -98,8 +98,8 @@
             </div>
             <span class="workspace-date" id="workspace-date"></span>
           </div>
-          <div class="task-grid">
-            <button class="task" data-section="team" id="team-task" hidden>
+          <div id="studio-overview" aria-label="Workspace overview"></div><div class="task-grid">
+            <button class="task" data-section="participants"><strong>Participants</strong><p>Search registrations, export the list and review check-in.</p><span class="task-action">Open participants →</span></button><button class="task" data-section="inbox"><strong>Inbox</strong><p>Enquiries, volunteers, photo requests and waiting lists.</p><span class="task-action">Open requests →</span></button><button class="task" data-section="activity"><strong>Team activity</strong><p>See which content the team has updated.</p><span class="task-action">Review changes →</span></button><button class="task" data-section="connections"><strong>Connections</strong><p>See the status of accounts, events, payments and writing tools.</p><span class="task-action">Review setup →</span></button><button class="task" data-section="team" id="team-task" hidden>
               <span class="task-symbol"
                 ><svg viewBox="0 0 24 24" aria-hidden="true">
                   <circle cx="9" cy="7" r="3" />
@@ -163,7 +163,7 @@
             </button>
           </div>
         </div>
-        <section id="studio-list" hidden>
+        <section id="studio-operations" hidden><button class="back-button" id="back-operations">← Studio home</button><div class="workspace-heading small"><h1 id="operations-title">Operations</h1></div><div id="operations-content"></div></section><section id="studio-list" hidden>
           <button class="back-button" id="back-home">← Studio home</button>
           <div class="workspace-heading small">
             <div>
@@ -184,7 +184,7 @@
             <p>Start with the essentials. Save a draft when you’re ready.</p>
           </div>
           <form id="entry-form">
-            <div class="editor-fields" id="editor-fields"></div>
+            <div class="editor-fields" id="editor-fields"></div><details class="operations-panel" id="writing-assistant"><summary>Writing assistant</summary><p>Draft from confirmed notes, then review and apply the result. Only the notes you enter here are sent to the configured AI provider. Nothing is published automatically.</p><label for="writing-task">Writing task</label><select id="writing-task"><option value="event">Event description</option><option value="recap">Run recap</option><option value="caption">Photo caption</option><option value="partner">Partner introduction</option></select><label for="writing-notes">Confirmed notes</label><textarea id="writing-notes" maxlength="3000" rows="5"></textarea><button type="button" id="request-writing" class="button button-dark">Draft from these notes with AI</button><p id="writing-status" role="status"></p><label for="writing-result">Draft to review</label><textarea id="writing-result" rows="5" maxlength="5000"></textarea><button type="button" id="apply-writing" class="text-button">Apply to description / summary</button></details>
             <section id="photo-panel" hidden>
               <div class="upload-zone">
                 <h2>ADD THE MOMENTS.</h2>
@@ -315,7 +315,7 @@
                   Check in →
                 </button>
               </form>
-              <p id="checkin-result" role="status"></p>
+              <p id="checkin-result" role="status"></p><div id="benefit-status"></div>
               <p class="small-note">
                 Already used passes are clearly marked. No donation information
                 is requested.
@@ -390,7 +390,7 @@
             <h1>THE RIGHT GEAR.<br />THE RIGHT CONNECTION.</h1>
             <p>
               A connected store will provide the real catalog, stock, orders and
-              checkout. Shopify is the recommended starting point. We’ll keep
+              checkout. A merchant account is still needed. We’ll keep
               the team’s product-editing workflow simple once the merchant
               account is selected.
             </p>

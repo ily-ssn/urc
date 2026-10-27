@@ -220,3 +220,29 @@
     display: none;
   }
 }
+.pass-day {
+  padding: 32px 0;
+  border-top: 1px solid var(--line);
+  margin-top: 30px;
+}
+.pass-day h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+.pass-day > div {
+  white-space: pre-line;
+  font-size: 14px;
+}
+.pass-day details {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid var(--line);
+}
+.pass-day summary {
+  cursor: pointer;
+  font-size: 16px;
+}
+.pass-day details p {
+  font-size: 13px;
+  margin-block: 18px;
+}
