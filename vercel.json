@@ -21,6 +21,14 @@
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self'; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
         }
       ]
     },
@@ -36,24 +44,48 @@
           "value": "no-referrer"
         }
       ]
+    },
+    {
+      "source": "/account",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
-      "source": "/events/:path*",
-      "destination": "/explore"
+      "source": "/community/:path*",
+      "destination": "/community"
     },
     {
-      "source": "/gallery/:path*",
-      "destination": "/explore"
+      "source": "/events/:slug",
+      "destination": "/api/page?section=events&slug=:slug"
     },
     {
-      "source": "/impact/:path*",
-      "destination": "/explore"
+      "source": "/gallery/:slug",
+      "destination": "/api/page?section=gallery&slug=:slug"
     },
     {
-      "source": "/partners/:path*",
-      "destination": "/explore"
+      "source": "/impact/:slug",
+      "destination": "/api/page?section=impact&slug=:slug"
+    },
+    {
+      "source": "/partners/:slug",
+      "destination": "/api/page?section=partners&slug=:slug"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/explore",
+      "destination": "/events",
+      "permanent": true
     }
   ]
 }
