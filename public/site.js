@@ -87,6 +87,15 @@ function toast(text) {
   $("#site-toast").hidden = false;
   setTimeout(() => ($("#site-toast").hidden = true), 4200);
 }
+// Shared by the private profile/pass exports, independent of the removed event action bar.
+function download(name, data, type) {
+  const url = URL.createObjectURL(new Blob([data], { type }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
 function saved() {
   try {
     return JSON.parse(localStorage.getItem("urc_saved_runs_v1") ?? "[]")

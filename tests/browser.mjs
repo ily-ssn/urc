@@ -524,6 +524,18 @@ try {
   await memberPage.getByText("Profile saved.", { exact: true }).waitFor();
   assert.equal(savedProfile.display_name, "Updated member");
   assert.equal(savedProfile.news_opt_in, false);
+  const memberExportPromise = memberPage.waitForEvent("download");
+  await memberPage
+    .getByRole("button", { name: "Download my profile", exact: true })
+    .click();
+  const memberExport = await memberExportPromise;
+  const memberExportData = JSON.parse(
+    await readFile(await memberExport.path(), "utf8"),
+  );
+  assert.equal(memberExportData.profile.display_name, "Updated member");
+  checks.push(
+    "Signed-in member can export their own updated profile after event download controls are removed",
+  );
   checks.push(
     "Connected member UI saves follows and private preferences and accepts a received connection request",
   );
