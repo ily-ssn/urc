@@ -47,12 +47,46 @@ export function mountRaceWorld() {
   const words = [...document.querySelectorAll(".route-word")];
   const lineup = document.querySelector(".race-lineup");
   const chapters = [...document.querySelectorAll(".feeling-chapter")];
+  const cameraRoll = document.querySelector(".race-camera-roll");
+  const movingRunners = chapters.map((chapter) =>
+    [...chapter.querySelectorAll("[data-runner]")].map((runner, i) => {
+      const path = chapter.querySelector(
+        `[data-motion-path="${runner.dataset.lane}"]`,
+      );
+      return {
+        runner,
+        path,
+        length: path.getTotalLength(),
+        pace: Number(runner.dataset.pace),
+        offset: Number(runner.dataset.offset),
+        i,
+      };
+    }),
+  );
   if (!section) return;
   let frame = 0,
     previous = -1;
   const clamp = (n) => Math.max(0, Math.min(1, n));
   function update() {
     frame = 0;
+    const heroBounds = hero.getBoundingClientRect();
+    const heroProgress = clamp(
+      -heroBounds.top / Math.max(1, heroBounds.height - innerHeight),
+    );
+    hero.style.setProperty(
+      "--hero-zoom",
+      reduced.matches ? "1.05" : (1.2 - heroProgress * 0.14).toFixed(4),
+    );
+    if (cameraRoll) {
+      const b = cameraRoll.getBoundingClientRect();
+      const p = clamp((innerHeight - b.top) / (innerHeight + b.height));
+      cameraRoll.style.setProperty(
+        "--roll-title-x",
+        reduced.matches
+          ? "-120px"
+          : `${-Math.min(innerWidth * 0.65, 900) + p * Math.min(innerWidth * 0.9, 1400)}px`,
+      );
+    }
     const box = section.getBoundingClientRect();
     const progress = reduced.matches
       ? 1
@@ -75,7 +109,7 @@ export function mountRaceWorld() {
           : `${120 - p * Math.min(innerWidth * 0.9, 1400)}px`,
       );
     }
-    for (const chapter of chapters) {
+    for (const [chapterIndex, chapter] of chapters.entries()) {
       const bounds = chapter.getBoundingClientRect();
       const p = reduced.matches
         ? 1
@@ -89,6 +123,37 @@ export function mountRaceWorld() {
         `${((reduced.matches ? 1 : clamp((p - 0.12) / 0.88)) * 100).toFixed(2)}%`,
       );
       chapter.style.setProperty("--feeling-line", (1 - p).toFixed(4));
+      for (const { runner, path, length, pace, offset, i } of movingRunners[
+        chapterIndex
+      ]) {
+        const along = clamp(p * pace - offset + 0.03 * i);
+        const point = path.getPointAtLength(along * length);
+        runner.setAttribute(
+          "transform",
+          `translate(${point.x.toFixed(2)} ${point.y.toFixed(2)})`,
+        );
+        const angle = reduced.matches ? 0 : Math.sin(p * 35 + i * 1.8) * 24;
+        runner
+          .querySelector("[data-run-front]")
+          .setAttribute("transform", `rotate(${angle.toFixed(2)} 3 -1)`);
+        runner
+          .querySelector("[data-run-back]")
+          .setAttribute("transform", `rotate(${(-angle).toFixed(2)} 2 -1)`);
+        runner
+          .querySelector("[data-run-arm]")
+          .setAttribute(
+            "transform",
+            `rotate(${(-angle * 0.7).toFixed(2)} 0 -15)`,
+          );
+      }
+      chapter
+        .querySelectorAll("[data-gather]")
+        .forEach((person) =>
+          person.setAttribute(
+            "transform",
+            `translate(${(Number(person.dataset.gather) * (1.35 - p * 0.55)).toFixed(2)} 0)`,
+          ),
+        );
     }
   }
   const schedule = () => {

@@ -61,10 +61,6 @@
   ],
   "rewrites": [
     {
-      "source": "/community/:path*",
-      "destination": "/community"
-    },
-    {
       "source": "/events/:slug",
       "destination": "/api/page?section=events&slug=:slug"
     },
@@ -86,6 +82,11 @@
       "source": "/explore",
       "destination": "/events",
       "permanent": true
+    },
+    {
+      "source": "/community/:path*",
+      "destination": "/club",
+      "permanent": false
     }
   ]
 }

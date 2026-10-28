@@ -180,6 +180,45 @@ const fields = {
   ],
 };
 fields.event.push(
+  [
+    "heroUrl",
+    "Run page hero photo",
+    "url",
+    "A confirmed HTTPS photo URL. Use a community action photo rather than the event poster.",
+  ],
+  [
+    "distance",
+    "Total distance",
+    "text",
+    "Only publish the organiser-confirmed distance.",
+  ],
+  [
+    "elevation",
+    "Elevation gain",
+    "text",
+    "Leave empty until a measured route is available.",
+  ],
+  ["difficulty", "Difficulty", "text", "The organiser’s route rating."],
+  [
+    "estimatedTime",
+    "Estimated run time",
+    "text",
+    "A clearly described estimate, for example 30–60 minutes.",
+  ],
+  [
+    "waterCheckpoints",
+    "Water checkpoints",
+    "text",
+    "Say whether these are confirmed or proposed.",
+  ],
+  [
+    "stravaUrl",
+    "Strava route",
+    "url",
+    "The confirmed HTTPS route link; leave empty until supplied.",
+  ],
+);
+fields.event.push(
   ["endsAt", "End time", "datetime-local", "Optional confirmed finish time."],
   [
     "recoveryLocation",
@@ -1023,6 +1062,13 @@ function renderFields() {
   ];
   const arrivalKeys = [
     "endsAt",
+    "heroUrl",
+    "distance",
+    "elevation",
+    "difficulty",
+    "estimatedTime",
+    "waterCheckpoints",
+    "stravaUrl",
     "mapUrl",
     "arrival",
     "itinerary",

@@ -1,25 +1,11 @@
 import { escapeHtml as e, safeUrl } from "../lib/public.js";
 
-const arrow = '<span aria-hidden="true">↗</span>';
+const arrow =
+  '<span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span>';
 const link = (label, href, extra = "") =>
   `<a class="button ${extra}" href="${e(href)}">${e(label)} ${arrow}</a>`;
 const photo = (url, alt, extra = "") =>
   `<img src="${e(safeUrl(url))}" alt="${e(alt)}" ${extra}>`;
-const dateParts = (value) => {
-  if (!Number.isFinite(Date.parse(value))) return ["NEXT", "RUN"];
-  const d = new Date(value);
-  return [
-    new Intl.DateTimeFormat("en", {
-      day: "2-digit",
-      timeZone: "Africa/Harare",
-    }).format(d),
-    new Intl.DateTimeFormat("en", { month: "short", timeZone: "Africa/Harare" })
-      .format(d)
-      .toUpperCase(),
-  ];
-};
-export const routeDrawing = `<svg viewBox="0 0 360 180" fill="none" aria-hidden="true"><path d="M23 143C69 143 52 43 115 43S133 142 200 142 227 43 302 43H338" stroke="currentColor" stroke-width="3" stroke-dasharray="8 8"/><circle cx="23" cy="143" r="12" fill="currentColor"/><circle cx="338" cy="43" r="17" stroke="currentColor" stroke-width="3"/><path d="m330 43 6 6 11-14" stroke="currentColor" stroke-width="3"/></svg>`;
-
 export function raceCard(x, { formatDate, past = false } = {}) {
   const p = x.payload || {},
     theme = ["ice", "rose", "lime"].includes(p.theme) ? p.theme : "lime";
@@ -55,6 +41,28 @@ function homeRacePreview(
   return `<article class="home-run-card ${sample ? "home-run-sample" : "home-run-reset"}" id="${sample ? "preview-next-race" : "featured-reset"}"><div class="home-run-image">${photo(p.coverUrl || "/assets/urc-moment-3.jpg", p.coverAlt || x.title, 'loading="lazy"')}<span class="home-run-date">${e(date)}</span></div><div class="home-run-body"><h3>${e(x.title)}</h3><dl><div><dt>Distance</dt><dd>${e(distance)}</dd></div><div><dt>Elevation +</dt><dd>${e(elevation)}</dd></div></dl><div class="home-run-actions">${action}<button class="race-card-arrow" type="button" ${sample ? "data-preview-run" : 'data-point-next="preview-next-race"'} aria-label="${sample ? "Open sample run preview" : "Point to the next race"}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="2"/></svg></button></div></div></article>`;
 }
 
+export function runFeature(x) {
+  const p = x.payload || {},
+    url = "/events/" + encodeURIComponent(x.slug);
+  const date = new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Africa/Harare",
+  }).format(new Date(p.startsAt));
+  const arrow = `<span class="run-feature-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="2"/></svg></span>`;
+  return `<article class="run-feature"><div class="run-feature-image">${photo(p.coverUrl || "/assets/urc-moment-3.jpg", p.coverAlt || x.title, 'loading="lazy"')}<span class="home-run-date">${e(date)}</span></div><div class="run-feature-body"><h2>${e(x.title)}</h2><p class="run-feature-subtitle">${e(p.partnerOffer || "A morning with Powerhouse")}</p><p>${e(p.purpose || "A community run in Harare.")} ${x.slug === "reset" ? "Start with the community run, then choose the cold plunge and sauna experience that suits you. Meet at 56 Kingsmead Road and check the event details before you arrive." : e(p.summary || "Read the event details for the meeting point, activities and plan for the day.")}</p><dl><div><dt>Distance</dt><dd>5 km</dd></div><div><dt>Elevation +</dt><dd>48 m</dd></div></dl><p class="run-feature-preview">Route figures shown for design preview.</p><div class="run-feature-actions"><a href="${e(url)}"><span class="run-feature-button">Discover the run</span>${arrow}</a><a href="${e(url)}#registration"><span class="run-feature-button">Tickets</span>${arrow}</a></div></div></article>`;
+}
+
+const runnerSprite = `<g class="runner-sprite" transform="scale(.64)"><circle cx="4" cy="-25" r="4" fill="currentColor"/><path d="m1-17-4 12 7 5" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path data-run-arm d="m0-15 8 6 7-6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path data-run-front d="m3-1 8 7-5 10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path data-run-back d="m2-1-9 8-10-3" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`;
+function peopleIllustration(kind) {
+  if (kind === 2)
+    return `<svg class="feeling-chapter-drawing feeling-people" viewBox="0 0 320 240" fill="none" aria-hidden="true">${[-2, -1, 0, 1, 2].map((n, i) => `<g data-gather="${n * 37}" transform="translate(${n * 37} 0)"><circle cx="160" cy="94" r="7" fill="${i % 2 ? "#b0ec49" : "#fff"}"/><path d="M148 140v-23c0-16 24-16 24 0v23m-18 0-3 31m15-31 4 31" stroke="${i % 2 ? "#b0ec49" : "#fff"}" stroke-width="4" stroke-linecap="round"/></g>`).join("")}<path d="M133 53h45a7 7 0 0 1 7 7v17h-20l-10 9v-9h-22V53Z" stroke="currentColor" stroke-width="2"/></svg>`;
+  if (kind === 1)
+    return `<svg class="feeling-chapter-drawing feeling-runners" viewBox="0 0 320 240" fill="none" aria-hidden="true">${[70, 125, 180].map((y, i) => `<path d="M24 ${y}H296" class="feeling-line-base"/><path data-motion-path="${i}" d="M24 ${y}H296" class="feeling-line-fill" pathLength="1"/><g data-runner data-lane="${i}" data-pace="${[0.68, 1, 0.84][i]}" data-offset="0" transform="translate(24 ${y})">${runnerSprite}</g>`).join("")}</svg>`;
+  return `<svg class="feeling-chapter-drawing feeling-runners" viewBox="0 0 320 240" fill="none" aria-hidden="true"><path d="M24 176H186L232 150 288 80" class="feeling-line-base"/><path data-motion-path="0" d="M24 176H186L232 150 288 80" class="feeling-line-fill" pathLength="1"/>${[0, 1, 2].map((i) => `<g data-runner data-lane="0" data-pace="1" data-offset="${i * 0.08}" transform="translate(${24 + i * 18} 176)">${runnerSprite}</g>`).join("")}</svg>`;
+}
+
 export function homeExperience({
   next,
   events = [],
@@ -84,47 +92,51 @@ export function homeExperience({
   <section class="race-lineup" id="runs"><div class="race-choose-heading"><div class="race-choose-marquee" aria-hidden="true"><span>CHOOSE YOUR RACE&nbsp; CHOOSE YOUR RACE&nbsp;</span></div><h2>Choose your race</h2></div><div class="race-lineup-grid">${homeRacePreview(next || { title: "RESET", slug: "reset", payload: { startsAt: "2026-10-31T07:30:00+02:00", coverUrl: "/assets/reset.jpg", coverAlt: "RESET run, cold plunge and sauna event artwork" } })}${homeRacePreview({ title: "Sunday Social", slug: "sunday-social-preview", payload: { coverUrl: "/assets/urc-moment-3.jpg", coverAlt: "URC community photograph used for a sample run design" } }, { sample: true, distance: "10 km", elevation: "76 m" })}</div><p class="race-preview-note">Route figures and the second run are design previews.</p><dialog class="run-preview-dialog" id="run-preview-dialog" aria-labelledby="run-preview-title"><button type="button" id="close-run-preview" aria-label="Close sample run preview">Close ×</button><p>DESIGN PREVIEW</p><h2 id="run-preview-title">Sunday Social</h2><img src="/assets/urc-moment-3.jpg" alt="URC community together in Harare"><dl><div><dt>Distance</dt><dd>10 km</dd></div><div><dt>Elevation</dt><dd>76 m</dd></div></dl><p>This is a sample event for reviewing the card design. No date or route is confirmed and reservations are unavailable.</p></dialog></section>
   <section class="race-feeling"><div class="feeling-section-ghost" aria-hidden="true">THE FEELING</div><header class="feeling-section-head"><h2>The feeling</h2><div><h3>A young crowd.<br>Room for everyone.</h3><p>Come for a run. Bring your friends. Meet a few more. That’s URC.</p></div></header><div class="feeling-chapters">${[
     [
-      "Free start",
-      "Your first step is simple. Pick a run, find the meeting point and say hello. Attendance is free. Giving is up to you.",
-      "M15 176H74L118 151H180L229 80H278",
+      "Run with Powerhouse",
+      "Come on your own or with friends. There’s a group to head out with, whatever your pace. Find a run lead at the start and join in.",
     ],
     [
-      "Run together",
-      "Some of us are chasing a time. Some of us are catching up with a friend. Find your pace, stay with your group and look out for the people beside you.",
-      "M15 151L61 122H106L145 156H191L234 75H278",
+      "Your pace",
+      "Fast, slow, stopping for a chat. You’re still part of the run. This is time together, not a competition with the person beside you.",
     ],
     [
-      "Stay a while",
-      "The finish line isn’t a rush to leave. Hang around, get something to eat or join the recovery session when it’s part of the day. The event page has the plan.",
-      "M15 168H68L109 100H154L198 136H235L278 79",
+      "More than the run",
+      "Stick around after the finish. There’s usually a conversation, a new face or something planned with the people hosting us. Check the event for the food, recovery sessions and cause.",
     ],
   ]
     .map(
-      ([title, text, route], i) =>
-        `<article class="feeling-chapter"><span class="feeling-chapter-number">${String(i + 1).padStart(2, "0")}</span><div class="feeling-chapter-copy"><h3><span class="feeling-fill-heading">${e(title)}</span></h3><p><span class="feeling-fill-copy">${e(text)}</span></p></div><svg class="feeling-chapter-drawing" viewBox="0 0 300 240" fill="none" aria-hidden="true"><path d="${route}" class="feeling-line-base"/><path d="${route}" class="feeling-line-fill" pathLength="1"/><circle cx="15" cy="${i === 1 ? 151 : i === 2 ? 168 : 176}" r="5" fill="white"/><circle cx="278" cy="${i === 0 ? 80 : i === 1 ? 75 : 79}" r="5" fill="white"/></svg></article>`,
+      ([title, text], i) =>
+        `<article class="feeling-chapter"><div class="feeling-chapter-copy"><h3><span class="feeling-fill-heading">${e(title)}</span></h3><p><span class="feeling-fill-copy">${e(text)}</span></p></div>${peopleIllustration(i)}</article>`,
     )
     .join("")}</div></section>
-  ${images.length ? `<section class="race-moments"><div class="race-section-heading"><div><p class="race-eyebrow">04 / THE CAMERA ROLL</p><h2>You had to<br>be there.</h2></div><p>Early starts.<br>Good company. Real memories.</p><a class="race-text-link" href="/gallery">See the gallery ${arrow}</a></div><div class="race-photo-strip">${images.map((im, i) => `<a href="/gallery/${e(encodeURIComponent(im.album.slug))}#photo-${im.photoIndex + 1}">${photo(im.url, im.alt || "A moment with URC", 'loading="lazy"')}<span>URC / ${String(i + 1).padStart(2, "0")} ${arrow}</span></a>`).join("")}</div><p class="race-photo-credit">From the URC organiser’s community albums. Individual credits inside.</p></section>` : ""}
-  <section class="race-prepare"><div class="race-section-heading"><div><p class="race-eyebrow">05 / BEFORE YOU GO</p><h2>Less overthinking.<br>More showing up.</h2></div><a class="race-text-link" href="/first-run">Your first-run guide ${arrow}</a></div><div class="race-prep-cards"><a href="/events"><span>01 / PICK YOUR DAY</span><h3>Find a run.</h3>${photo(images[1]?.url || hero, "", 'loading="lazy"')}<span class="race-prep-action">The run, the cause, the plan ${arrow}</span></a><a href="/first-run"><span>02 / YOUR KIT</span><h3>Keep it simple.</h3><svg viewBox="0 0 280 170" fill="none" aria-hidden="true"><path d="M45 60 88 41l33 47 61 9 45 27-5 20H42l-10-19 13-65Z" stroke="currentColor" stroke-width="3"/><path d="m45 111 37 11 122 1m-98-54-17 15m28-1-17 15m29-2-17 15M37 135h186" stroke="currentColor" stroke-width="3"/><path d="m216 44 10-18m-2 34 19-6m-43-21-3-19" stroke="currentColor" stroke-width="2"/></svg><span class="race-prep-action">Water. Comfortable shoes. You. ${arrow}</span></a><a href="${e(nextUrl)}#registration"><span>03 / YOUR PLACE</span><h3>Keep your ticket.</h3><div class="race-ticket-art" aria-hidden="true"><span>URC / HARARE</span><strong>SEE YOU<br>AT THE START.</strong><span>FREE ATTENDANCE / OPTIONAL GIVING</span></div><span class="race-prep-action">Choose your experience ${arrow}</span></a></div></section></div>`;
+  ${images.length ? `<section class="race-moments race-camera-roll"><header class="ref-section-heading"><div class="ref-section-ghost camera-roll-ghost" aria-hidden="true">THE CAMERA ROLL</div><h2>The camera roll</h2><h3>You had to be there.</h3><a class="race-text-link" href="/gallery">Open the gallery ${arrow}</a></header><div class="race-photo-strip">${images.map((im, i) => `<a href="/gallery/${e(encodeURIComponent(im.album.slug))}#photo-${im.photoIndex + 1}">${photo(im.url, im.alt || "A moment with URC", 'loading="lazy"')}<span class="camera-image-title">${e(im.caption || "Powerhouse")}</span></a>`).join("")}</div></section>` : ""}
+  <section class="race-prepare race-before-go"><header class="ref-section-heading"><div class="ref-section-ghost" aria-hidden="true">BEFORE YOU GO</div><h2>Before you go</h2><h3>Pick a run. Pack light. Keep your pass.</h3></header><div class="race-prep-cards"><a href="/events">${photo(images[0]?.url || hero, "Members of the URC community", 'loading="lazy"')}<div class="before-go-copy"><h3>Find the run.</h3><p>The run, the cause, the plan.</p><span class="race-prep-action">See the runs ${arrow}</span></div></a><a href="/first-run">${photo(images[3]?.url || hero, "URC members together before a run", 'loading="lazy"')}<div class="before-go-copy"><h3>Keep it simple.</h3><p>Water and comfortable shoes. Check your event’s list.</p><span class="race-prep-action">What to bring ${arrow}</span></div></a><a href="${e(nextUrl)}#registration">${photo(allImages[4]?.url || hero, "A member of the URC community", 'loading="lazy"')}<div class="before-go-copy"><h3>Keep your ticket.</h3><p>Download your pass after your booking is confirmed.</p><span class="race-prep-action">Your next run ${arrow}</span></div></a></div></section></div>`;
 }
 
-const paragraph = (text) => `<p>${e(text)}</p>`;
-export function eventExperience(x, { state, formatDate, saved, related }) {
+export function eventExperience(x, { state, formatDate, related }) {
   const p = x.payload || {},
-    [day, month] = dateParts(p.startsAt);
-  const block = (title, text, extra = "") =>
-    text
-      ? `<section class="event-chapter ${extra}"><h2>${e(title)}</h2>${paragraph(text)}</section>`
-      : "";
-  return `<div class="wrap event-world"><div class="event-cover-stage">${p.coverUrl ? photo(p.coverUrl, p.coverAlt || x.title, 'class="event-cover-image" fetchpriority="high"') : `<div class="event-poster"><h2>${e(x.title)}</h2><span>POWERHOUSE / HARARE</span></div>`}<div class="event-cover-stamp"><strong>${e(day)}</strong><span>${e(month)}</span></div></div><div class="detail-actions event-actionbar"><a class="ticket-button event-ticket-jump" href="#registration">Tickets <span aria-hidden="true">↗</span></a><button data-save="${e(x.id)}" aria-pressed="${saved}">${saved ? "Saved ✓" : "Save this run"}<span aria-hidden="true">＋</span></button><button id="event-calendar">Add to calendar <span aria-hidden="true">↓</span></button><button id="event-share">Share this run <span aria-hidden="true">↗</span></button><button id="event-poster">Download event poster <span aria-hidden="true">↓</span></button></div><div class="detail-layout event-layout"><div class="detail-main"><section class="event-chapter event-purpose"><span class="section-index">01 / THE IDEA</span><h2>A morning<br>worth showing up for.</h2>${paragraph(p.purpose || "See the organiser’s confirmed event information before reserving.")}</section><section class="event-activities"><div><p class="section-index">02 / YOUR DAY</p><h2>Make it<br>your kind<br>of morning.</h2>${paragraph(p.activities || "Activity details will be confirmed by the organiser.")}</div><div class="activity-paper">${routeDrawing}<h3>${e(p.partnerOffer || "Move together.")}</h3><p>${e(p.offerTerms || "Read the event’s participation details before choosing an activity.")}</p></div></section>${
-    p.itinerary
-      ? `<section class="event-chapter"><span class="section-index">03 / THE PLAN</span><h2>From the first hello<br>to the last goodbye.</h2><ol class="day-schedule">${String(
-          p.itinerary,
-        )
-          .split(/\n/)
-          .filter(Boolean)
-          .map((line) => `<li>${e(line)}</li>`)
-          .join("")}</ol></section>`
-      : ""
-  }<section class="event-chapter venue-section"><span class="section-index">04 / THE PLACE</span><h2>Meet us here.</h2><div class="venue-address"><strong>${e(p.location)}</strong><span>Harare, Zimbabwe</span></div>${paragraph(p.arrival || "Check the meeting point and arrive in time for the briefing.")}<div class="map-preview"><div class="map-grid" aria-hidden="true"><i></i><span>URC / MEETING POINT</span></div><div class="map-consent"><p>See the meeting point on a map.</p><button class="button outline" id="load-venue-map">Load venue map ↗</button><small>Loads an interactive Google map.</small></div><div id="venue-map-frame" hidden></div></div>${safeUrl(p.mapUrl) ? `<a class="text-link" href="${e(safeUrl(p.mapUrl))}" target="_blank" rel="noopener noreferrer">Open directions in Maps ↗</a>` : ""}${p.recoveryLocation ? `<div class="recovery-location"><h3>Cold plunge & sauna</h3>${paragraph(p.recoveryLocation)}${safeUrl(p.recoveryMapUrl) ? link("Recovery venue directions", safeUrl(p.recoveryMapUrl), "outline") : ""}</div>` : p.partnerOffer ? '<p class="image-credit">The address above is the listed meeting point. Confirm the recovery-session arrangements with the organiser before travelling.</p>' : ""}</section><section class="event-essentials"><div><h2>A good day<br>starts prepared.</h2><a class="text-link" href="/first-run">Your first club run? Start here ↗</a></div><div>${block("Bring along", p.checklist || "Water, comfortable shoes and suitable layers. Follow the organiser’s route and safety instructions.")}${block("Access and comfort", p.accessibility || "Ask the organiser about access or support you need before registering.")}${block("Need a hand?", p.organiserContact)}</div></section>${state === "past" ? '<section class="event-chapter"><h2>How was your run?</h2><p>Tell the organisers what worked and what could be better.</p><div id="feedback-form"></div></section>' : ""}</div><aside class="detail-side reservation-card" id="registration"><div class="reservation-card-top"><span>YOUR NEXT STARTING LINE</span><span>U<i>R</i>C</span></div><h2>${state === "past" ? "Until the next one." : state === "cancelled" ? "Event cancelled." : state === "postponed" ? "Event postponed." : "You’re invited."}</h2><p class="reservation-price">Free <small>attendance</small></p><dl><dt>When</dt><dd>${e(formatDate(p.startsAt))}</dd><dt>Meeting point</dt><dd>${e(p.location)}</dd><dt>Your experience</dt><dd>${e(p.partnerOffer || p.activities)}</dd>${p.registrationClosesAt ? `<dt>Reservations close</dt><dd>${e(formatDate(p.registrationClosesAt))}</dd>` : ""}</dl><div id="registration-form"></div><div class="reservation-footnote"><p>No donation requirement.<br>No account required.</p><a class="text-link" href="/privacy">Participation & privacy ↗</a></div><details class="event-policy"><summary>Registration and changes</summary>${paragraph(p.cancellationPolicy || "Keep your private pass link safe. Your attendance pass and any optional giving are separate.")}</details></aside></div>${related}</div>`;
+    hero = safeUrl(p.heroUrl) || "/assets/urc-moment-3.jpg";
+  const distance =
+    p.distance || (x.slug === "reset" ? "5 km" : "See activities");
+  const difficulty =
+    p.difficulty || (x.slug === "reset" ? "Easy" : "To be confirmed");
+  const nextLabel =
+    state === "past"
+      ? "Past run"
+      : state === "cancelled"
+        ? "Event cancelled"
+        : state === "postponed"
+          ? "Event postponed"
+          : "Run details";
+  const stats = [
+    ["Total distance", distance],
+    ["Elevation gain", p.elevation || "Awaiting the route map"],
+    ["Difficulty", difficulty],
+    ["Estimated average time", p.estimatedTime || "30–60 minutes for 5 km"],
+    [
+      "Water checkpoints",
+      p.waterCheckpoints || "1–2 proposed; details to follow",
+    ],
+  ];
+  return `<header class="runs-cover shared-masthead course-masthead"><img src="${e(hero)}" alt="URC community photograph" fetchpriority="high"><div class="runs-cover-shade"></div><h1>${e(x.title)}</h1><div class="runs-diagonal" aria-hidden="true"></div></header><div class="event-world course-world"><section class="course-introduction"><h2>${x.slug === "reset" ? "Run. Cold plunge. Sauna." : e(x.title)}</h2><p>${x.slug === "reset" ? "A morning on the road, a sharp plunge into the cold, then the slower heat of the sauna. RESET brings the three together on Saturday, 31 October. Meet at 56 Kingsmead Road, run with the group, then take your time with the recovery session you’ve chosen." : e(p.purpose || "Read the event details before registering.")}</p></section><section class="course-overview"><h2>${e(x.title)}</h2><div class="course-route-card"><div class="course-route-copy"><p>${e(nextLabel)}</p><h3>${e(p.location || "Meeting point to be confirmed")}</h3><strong>${e(distance)}</strong><p>${e(difficulty)} · ${e(p.partnerOffer || "Community run")}</p><p class="course-route-note">Route preview. The course map is still to be confirmed.</p><div class="course-race-switch" aria-label="Browse runs"><button type="button" aria-label="Previous run" disabled>←</button><button type="button" aria-label="Next run" disabled>→</button></div></div><div class="course-profile-preview"><svg viewBox="0 0 600 300" fill="none" aria-hidden="true"><g stroke="#71796a" stroke-dasharray="4 8" opacity=".4"><path d="M80 240V202M150 240V173M220 240V187M290 240V145M360 240V151M430 240V100M500 240V81"/></g><path d="M30 220 80 202 150 173 220 187 290 145 360 151 430 100 500 81 565 50" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M30 245H565" stroke="#71796a"/><circle cx="30" cy="220" r="5" fill="white"/><circle cx="565" cy="50" r="5" fill="white"/></svg><span>${e(difficulty)}</span><small>Illustrative profile</small></div></div></section><section class="course-figures"><div class="course-figures-copy"><h2>The run<br>in figures</h2><p class="course-figures-intro">${e(formatDate(p.startsAt))}</p><dl>${stats.map(([label, value], i) => `<div class="course-stat ${i === 0 ? "course-stat-primary" : ""}"><dt>${e(label)}</dt><dd>${e(value)}</dd></div>`).join("")}</dl><section class="course-tickets" id="registration"><h3>Tickets</h3><p>Free attendance. Giving is optional.</p><div id="registration-form"></div><details class="course-day-details"><summary>On the day</summary><p>${e(p.arrival || "Check the meeting point and arrive for the briefing.")}</p><p>${e(p.checklist || "Bring water and comfortable running shoes. Check your chosen recovery session for anything else you need.")}</p>${p.recoveryLocation ? `<p>${e(p.recoveryLocation)}</p>` : ""}<p>${e(p.cancellationPolicy || "Check this page for changes before travelling.")}</p></details></section></div><img class="course-figures-photo" src="/assets/urc-moment-2.jpg" alt="URC members together at a previous run" loading="lazy"></section><section class="course-maps"><div class="course-maps-heading"><h2>Maps</h2><p>${e(p.location || "Meeting point to be confirmed")}</p></div><div class="course-map-actions">${safeUrl(p.mapUrl) ? `<a class="race-text-link" href="${e(safeUrl(p.mapUrl))}" target="_blank" rel="noopener noreferrer">Open in Google Maps <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a>` : ""}${safeUrl(p.stravaUrl) ? `<a class="race-text-link" href="${e(safeUrl(p.stravaUrl))}" target="_blank" rel="noopener noreferrer">Open in Strava <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a>` : '<button class="race-text-link" type="button" disabled title="The Strava route has not been supplied yet">Open in Strava · coming soon</button>'}</div><div class="map-preview"><div class="map-consent"><p>Meeting point</p><button class="button outline" id="load-venue-map">Load venue map ↗</button><small>Opens an interactive Google map.</small></div><div id="venue-map-frame" hidden></div></div></section>${state === "past" ? '<section class="section"><h2>After the run</h2><div id="feedback-form"></div></section>' : ""}${related}</div>`;
 }

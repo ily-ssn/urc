@@ -5,7 +5,7 @@ export function mountReservation(target, event) {
   const p = event.payload || {},
     options = activityOptions(p);
   target.innerHTML =
-    '<button class="button reserve-trigger" type="button">Reserve a spot <span aria-hidden="true">↗</span></button><p class="reservation-hint">Choose your experience. Keep your ticket.</p>';
+    '<button class="button reserve-trigger" type="button">Reserve a spot <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></button><p class="reservation-hint">Choose your experience. Keep your ticket.</p>';
   if (p.registrationMode === "urc-pending")
     target.querySelector(".reservation-hint").textContent =
       "Reservations open soon. Explore the experiences below.";

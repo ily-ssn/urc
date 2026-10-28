@@ -1,5 +1,10 @@
 import { mountRaceWorld } from "./race-world.js";
-import { homeExperience, eventExperience, raceCard } from "./experience.js";
+import {
+  homeExperience,
+  eventExperience,
+  raceCard,
+  runFeature,
+} from "./experience.js";
 import { mountReservation } from "./reservation.js";
 import {
   renderCommunity,
@@ -8,7 +13,6 @@ import {
 } from "./network.js";
 import { createClient } from "@supabase/supabase-js";
 import {
-  calendarFile,
   eventState,
   activityOptions,
   estimatedMinutes,
@@ -47,7 +51,7 @@ const date = (value) =>
       }).format(new Date(value)) + " CAT"
     : "Details to be confirmed";
 const button = (label, url, cls = "") =>
-  `<a class="button ${cls}" href="${e(url)}">${e(label)} <span aria-hidden="true">↗</span></a>`;
+  `<a class="button ${cls}" href="${e(url)}">${e(label)} <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a>`;
 const intro = (title, body, back = "") => {
   const covers = {
     events: [
@@ -56,9 +60,24 @@ const intro = (title, body, back = "") => {
     ],
     gallery: ["/assets/urc-moment-1.jpg", "URC members in Harare"],
     club: ["/assets/urc-moment-3.jpg", "The Powerhouse running community"],
+    partners: ["/assets/urc-moment-4.jpg", "Members of the URC community"],
+    shop: ["/assets/urc-moment-3.jpg", "The URC community wearing club shirts"],
     "first-run": ["/assets/urc-moment-2.jpg", "Members of the URC community"],
   };
   const cover = !back && covers[page];
+  if (
+    cover &&
+    ["events", "gallery", "club", "partners", "shop"].includes(page)
+  ) {
+    const labels = {
+      events: "Runs",
+      gallery: "Gallery",
+      club: "The club",
+      partners: "Partners",
+      shop: "Shop",
+    };
+    return `<header class="runs-cover shared-masthead"><img src="${cover[0]}" alt="${cover[1]}" fetchpriority="high"><div class="runs-cover-shade"></div><h1>${labels[page]}</h1><div class="runs-diagonal" aria-hidden="true"></div></header>`;
+  }
   return `<header class="page-intro ${cover ? "race-page-intro" : ""}">${cover ? `<img class="race-page-cover" src="${cover[0]}" alt="${cover[1]}" fetchpriority="high"><div class="race-page-shade"></div><span class="race-page-location">POWERHOUSE / HARARE, ZIMBABWE</span>` : ""}${back ? `<a class="back" href="/${page}">← ${e(back)}</a>` : ""}<div class="page-intro-line"><h1>${e(title)}</h1><p>${e(body)}</p></div></header>`;
 };
 const empty = (title, body, url = "/first-run", label = "Your first run") =>
@@ -67,14 +86,6 @@ function toast(text) {
   $("#site-toast").textContent = text;
   $("#site-toast").hidden = false;
   setTimeout(() => ($("#site-toast").hidden = true), 4200);
-}
-function download(name, data, type) {
-  const url = URL.createObjectURL(new Blob([data], { type }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 function saved() {
   try {
@@ -153,132 +164,67 @@ function home() {
   mountRaceWorld();
 }
 
-function directory() {
-  const kind = {
-      events: "event",
-      gallery: "album",
-      impact: "recap",
-      partners: "partner",
-    }[page],
-    items = entries.filter((x) => x.kind === kind),
-    titles = {
-      events: [
-        "Find your run.",
-        "Confirmed dates, local causes and shared experiences. Attendance is free; giving is optional.",
-      ],
-      gallery: [
-        "The moments.",
-        "An album for each run. The people, places and time together around the miles.",
-      ],
-      impact: [
-        "A reason to run.",
-        "The causes behind our events and the outcomes we can confirm.",
-      ],
-      partners: [
-        "Good company.",
-        "The people and businesses supporting URC, and the contribution each makes.",
-      ],
-    };
-  main.innerHTML =
-    intro(...titles[page]) +
-    `<section class="section" aria-label="${e(titles[page][0])}"><div class="toolbar"><label class="sr-only" for="directory-search">Search ${page}</label><input id="directory-search" type="search" placeholder="Search ${page === "events" ? "runs" : page}…"><label class="sr-only" for="directory-filter">Filter ${page}</label><select id="directory-filter">${
-      page === "events"
-        ? '<option value="upcoming">Upcoming runs</option><option value="past">Past runs</option><option value="all">All runs</option><option value="saved">Saved on this device</option>'
-        : page === "gallery"
-          ? '<option value="all">All years</option>' +
-            [
-              ...new Set(
-                items
-                  .map((x) =>
-                    new Date(x.payload?.date || x.updatedAt).getFullYear(),
-                  )
-                  .filter(Number.isFinite),
-              ),
-            ]
-              .sort((a, b) => b - a)
-              .map((y) => `<option>${y}</option>`)
-              .join("")
-          : page === "partners"
-            ? '<option value="all">All contributions</option>' +
-              [
-                ...new Set(
-                  items.map((x) => x.payload?.partnerType).filter(Boolean),
-                ),
-              ]
-                .map((t) => `<option>${e(t)}</option>`)
-                .join("")
-            : '<option value="all">All stories</option>'
-    }</select></div><p id="directory-count" role="status"></p><div class="listing" id="directory-items"></div><div id="directory-empty"></div></section>${page === "partners" ? `<section class="section green-panel editorial-copy"><h2>There’s more than<br>one way to help.</h2><div><p>Design, venues, food, recovery experiences and financial support can each play a part. Tell us what you have in mind.</p><a class="text-link" href="/contact?topic=partnership">Talk about a collaboration ↗</a></div></section>` : ""}`;
-  const render = () => {
-    const term = $("#directory-search").value.toLowerCase(),
-      filter = $("#directory-filter").value;
-    let visible = items.filter((x) =>
-      [x.title, x.payload.summary, x.payload.purpose, x.payload.contribution]
-        .join(" ")
-        .toLowerCase()
-        .includes(term),
+function runsPage() {
+  const events = entries
+    .filter((x) => x.kind === "event" && eventState(x) === "upcoming")
+    .sort(
+      (a, b) => Date.parse(a.payload.startsAt) - Date.parse(b.payload.startsAt),
     );
-    if (page === "events") {
-      visible = visible.filter(
-        (x) =>
-          filter === "all" ||
-          (filter === "saved" && saved().includes(x.id)) ||
-          filter === eventState(x),
-      );
-      visible.sort(
-        (a, b) =>
-          (filter === "past" ? -1 : 1) *
-          (Date.parse(a.payload.startsAt) - Date.parse(b.payload.startsAt)),
-      );
-    } else if (page === "gallery" && filter !== "all")
-      visible = visible.filter(
-        (x) =>
-          String(new Date(x.payload.date || x.updatedAt).getFullYear()) ===
-          filter,
-      );
-    else if (page === "partners" && filter !== "all")
-      visible = visible.filter((x) => x.payload.partnerType === filter);
-    $("#directory-items").innerHTML = visible.map(card).join("");
-    $("#directory-count").textContent =
-      `${visible.length} ${visible.length === 1 ? "result" : "results"}`;
-    $("#directory-empty").innerHTML = visible.length
-      ? ""
-      : empty(
-          items.length
-            ? "Nothing matches this view."
-            : page === "gallery"
-              ? "Our own moments, in their own time."
-              : page === "impact"
-                ? "Real stories. Confirmed outcomes."
-                : page === "partners"
-                  ? "Good collaborations take people."
-                  : "The next run is taking shape.",
-          items.length
-            ? "Try another search or filter."
-            : page === "gallery"
-              ? "Each published event album will live here. No reference photos are presented as URC event photographs."
-              : page === "impact"
-                ? "Recaps and verified results will appear after the runs. We do not present estimates as confirmed giving."
-                : page === "partners"
-                  ? "Confirmed partners and their contributions will appear here. Interested in working with URC? Talk to the team."
-                  : "Dates, distances and registration will appear when the next run is confirmed.",
-        );
-  };
-  $("#directory-search").addEventListener("input", render);
-  $("#directory-filter").addEventListener("change", render);
-  render();
+  main.innerHTML =
+    intro("Runs", "") +
+    `<section class="runs-tradition"><div class="runs-tradition-photo"><img src="/assets/urc-moment-3.jpg" alt="Urban Run Community together in Harare" loading="lazy"></div><div class="runs-tradition-copy"><h2>Powerhouse.<br>On foot.</h2><p>We meet in Harare, run together and make a morning of it.</p><p>Each run has its own plan: a cause to support, a local collaboration, something to do after the finish. Pick the one that feels like your kind of day.</p><a class="race-text-link" href="/club">Meet the club ↗</a></div></section><section class="run-feature-list" aria-label="Upcoming runs">${events.length ? events.map(runFeature).join("") : "<p>The next run is being planned. Confirmed details will appear here.</p>"}</section>`;
 }
+function galleryPage() {
+  const albums = entries.filter((x) => x.kind === "album");
+  const first = albums[0],
+    images = albums
+      .flatMap((a) =>
+        (a.payload.photos || [])
+          .filter((p) => safeUrl(p.url))
+          .map((p, i) => ({ ...p, album: a, index: i })),
+      )
+      .slice(0, 4);
+  main.innerHTML =
+    intro("Gallery", "") +
+    (first
+      ? `<section class="editorial-photo-row gallery-official"><img src="${e(safeUrl(first.payload.coverUrl) || "/assets/urc-moment-1.jpg")}" alt="URC community photograph" loading="lazy"><div><h2>Official photos</h2><p>From the start to everything after. Photographs from the URC community.</p><a class="race-text-link" href="/gallery/${e(encodeURIComponent(first.slug))}">Browse the photos <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="gallery-more"><header class="ref-section-heading"><div class="ref-section-ghost" aria-hidden="true">MORE PHOTOS</div><h2>More photos</h2></header><div class="race-photo-strip">${images.map((im) => `<a href="/gallery/${e(encodeURIComponent(im.album.slug))}#photo-${im.index + 1}"><img src="${e(safeUrl(im.url))}" alt="${e(im.alt || "URC community photograph")}" loading="lazy"><span class="camera-image-title">${e(im.caption || "Powerhouse")}</span></a>`).join("")}</div></section>`
+      : '<section class="section"><h2>Photos coming soon.</h2><a class="race-text-link" href="/events">See the runs ↗</a></section>');
+}
+function partnersPage() {
+  const partners = entries.filter((x) => x.kind === "partner");
+  main.innerHTML =
+    intro("Partners", "") +
+    `<section class="editorial-photo-row"><img src="/assets/urc-moment-4.jpg" alt="URC members together in Harare" loading="lazy"><div><h2>Local people.<br>Good collaborations.</h2><p>A place to meet. Something to eat. Time to recover after the run. There are different ways to be part of a URC morning.</p><a class="race-text-link" href="/contact?topic=partnership">Talk to the team <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section>${partners.length ? `<section class="section"><div class="listing">${partners.map(card).join("")}</div></section>` : ""}`;
+}
+function directory() {
+  if (page === "events") return runsPage();
+  if (page === "gallery") return galleryPage();
+  if (page === "partners") return partnersPage();
+  const stories = entries.filter((x) => x.kind === "recap");
+  main.innerHTML =
+    intro(
+      "A reason to run.",
+      "Stories from the runs and the causes behind them.",
+    ) +
+    `<section class="section">${stories.length ? `<div class="listing">${stories.map(card).join("")}</div>` : "<p>Stories from our runs will appear here.</p>"}</section>`;
+}
+
 function sectionBlock(title, text) {
   return text ? `<section><h2>${e(title)}</h2><p>${e(text)}</p></section>` : "";
 }
 function detail(x) {
   const p = x.payload ?? {};
   document.title = x.title + " · URC";
-  main.innerHTML = intro(
-    x.title,
-    x.kind === "event" ? date(p.startsAt) : p.summary || p.contribution || "",
-    page === "events" ? "All runs" : `All ${page}`,
-  );
+  main.innerHTML =
+    x.kind === "event"
+      ? ""
+      : intro(
+          x.title,
+          x.kind === "event"
+            ? date(p.startsAt)
+            : p.summary || p.contribution || "",
+          page === "events" ? "All runs" : `All ${page}`,
+        );
   if (x.kind === "event") {
     const state = eventState(x),
       theme = ["lime", "rose", "ice"].includes(p.theme) ? p.theme : "lime";
@@ -308,7 +254,7 @@ function detail(x) {
       target.append(frame);
       target.hidden = false;
       $(".map-consent").hidden = true;
-      $(".map-grid").hidden = true;
+      if ($(".map-grid")) $(".map-grid").hidden = true;
     });
     if (
       state === "upcoming" &&
@@ -326,18 +272,28 @@ function detail(x) {
     } else
       $("#registration-form").innerHTML =
         `<p class="notice">${e(p.statusNote || "Registration is not open for this event.")}</p>${p.waitlist === "yes" && state === "upcoming" ? '<div id="waitlist-form"></div>' : ""}`;
+    const otherRuns = entries
+      .filter((y) => y.kind === "event" && eventState(y) === "upcoming")
+      .sort(
+        (a, b) =>
+          Date.parse(a.payload.startsAt) - Date.parse(b.payload.startsAt),
+      );
+    const runIndex = otherRuns.findIndex((y) => y.id === x.id);
+    for (const [selector, offset] of [
+      ['[aria-label="Previous run"]', -1],
+      ['[aria-label="Next run"]', 1],
+    ]) {
+      const neighbour = runIndex >= 0 ? otherRuns[runIndex + offset] : null;
+      const control = $(selector);
+      if (neighbour && control) {
+        control.disabled = false;
+        control.addEventListener("click", () =>
+          location.assign(path(neighbour)),
+        );
+      }
+    }
     if ($("#waitlist-form")) requestForm($("#waitlist-form"), "waitlist", x.id);
     if ($("#feedback-form")) requestForm($("#feedback-form"), "feedback", x.id);
-    $("#event-calendar").addEventListener("click", () =>
-      download(
-        `urc-${x.slug}.ics`,
-        calendarFile(x, location.origin),
-        "text/calendar",
-      ),
-    );
-    $("#event-poster").addEventListener("click", () => poster(x));
-    $("#event-share").addEventListener("click", () => share(x));
-    $("[data-save]").addEventListener("click", () => saveRun(x.id));
   } else if (x.kind === "album") {
     photos = (p.photos ?? []).filter((y) => safeUrl(y.url));
     main.insertAdjacentHTML(
@@ -362,22 +318,10 @@ function clubPage() {
     (x) => x.kind === "page" && x.slug === "the-club",
   )?.payload;
   main.innerHTML =
-    intro(
-      "Powerhouse.",
-      "A run club rooted in Harare, with room for different paces, people and reasons to show up.",
-    ) +
-    `<section class="section editorial-copy"><h2>A lifestyle<br>in motion.</h2><div><p>${e(settings?.summary || "Powerhouse Urban Run Club brings people together through shared runs and purpose-led events in Harare. We build each day around movement, a local cause and experiences made possible with our partners.")}</p><p>We usually come together for one or two runs a month. The confirmed event page tells you what is planned, who it supports and what to expect.</p><p>You do not need a member account to join a run. Attendance is free, and giving is optional.</p><a href="/events" class="text-link">Find a run that suits you ↗</a></div></section><section class="section green-panel"><div class="section-head"><h2>The run is part of the day.</h2><p>The experience around it matters too.</p></div><nav class="big-links" aria-label="Life around URC"><a href="/partners">Local collaborations <span>↗</span></a><a href="/impact">Causes we support <span>↗</span></a><a href="/gallery">The people and moments <span>↗</span></a></nav></section><section class="section editorial-copy"><h2>Built by<br>the community.</h2><div><p>Want to help at a run, photograph an event or bring a partner experience to the club? Tell the organisers what you have in mind.</p><a href="/contact?topic=volunteer" class="text-link">Volunteer with URC ↗</a></div></section>`;
-  const moments = entries
-    .filter((x) => x.kind === "album")
-    .flatMap((x) => x.payload.photos || [])
-    .filter((x) => safeUrl(x.url))
-    .slice(0, 3);
-  if (moments.length)
-    $(".editorial-copy", main).insertAdjacentHTML(
-      "afterend",
-      `<section class="section club-family"><div class="section-head"><h2>A familiar face.<br>A place to belong.</h2><p>More than a date in the calendar. Time with people who make room for you.</p></div><div class="club-family-photos">${moments.map((im) => `<img src="${e(safeUrl(im.url))}" alt="${e(im.alt || "URC community photograph")}" loading="lazy">`).join("")}</div><p class="image-credit">From the club’s community collection. <a href="/gallery">See the gallery and photo credits ↗</a></p></section>`,
-    );
+    intro("The club", "") +
+    `<section class="editorial-photo-row"><img src="/assets/urc-moment-1.jpg" alt="URC members together in Harare" loading="lazy"><div><h2>A lifestyle<br>in motion.</h2><p>${e(settings?.summary || "Powerhouse Urban Run Club is where people in Harare get together to run, catch up and spend a morning outside.")}</p><p>We usually meet for one or two runs a month. Each day has its own plan, its own people and a reason to get out together.</p><a class="race-text-link" href="/events">Find your run <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="editorial-photo-row photo-row-reverse photo-row-muted"><img src="/assets/urc-moment-2.jpg" alt="URC members at Mind Over Miles" loading="lazy"><div><h2>A familiar face.<br>A place to belong.</h2><p>You don’t need to know everyone before you get here. Come on your own, bring a friend and find your pace. The faces get familiar.</p><a class="race-text-link" href="/gallery">Inside the gallery <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="club-around"><h2>The run is<br>part of the day.</h2><nav aria-label="Around Powerhouse"><a href="/partners">Local collaborations <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a><a href="/gallery">The people and moments <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></nav></section><section class="editorial-photo-row photo-row-dark"><img src="/assets/urc-moment-4.jpg" alt="Members of the URC community" loading="lazy"><div><h2>Built by<br>the community.</h2><p>Help at a run, photograph a morning or bring something to the next collaboration. There’s more than one way to be involved.</p><a class="race-text-link" href="/contact?topic=volunteer">Get involved <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section>`;
 }
+
 function firstRun() {
   const steps = [
     [
@@ -406,7 +350,7 @@ function firstRun() {
       "Your first run.",
       "You can arrive on your own. Here’s what to know before you do.",
     ) +
-    `<section class="section first-run-scenes"><div class="section-head"><h2>A little look<br>at your morning.</h2><p>Your run starts before the starting line.</p></div><div class="first-run-photo-cards"><a href="/events"><img src="/assets/urc-moment-1.jpg" alt="The URC community outside in Harare" loading="lazy"><span>01 / FIND THE PEOPLE</span><h3>Meet us there.</h3></a><a href="#pace-planner"><img src="/assets/urc-moment-4.jpg" alt="URC members together before a run" loading="lazy"><span>02 / FIND YOUR RHYTHM</span><h3>Take your time.</h3></a><a href="/gallery"><img src="/assets/urc-moment-5.jpg" alt="A smiling member of the URC community" loading="lazy"><span>03 / MAKE A MORNING OF IT</span><h3>Stay a while.</h3></a></div></section><section class="section guide-grid"><h2>A little preparation.<br>A simpler start.</h2><div><ul class="checklist">${steps.map(([title, body], i) => `<li><label><input type="checkbox" data-checklist="${i}"><span>${e(title)}</span></label><p>${e(body)}</p></li>`).join("")}</ul><p class="image-credit">Your checklist is kept on this device.</p>${button("See upcoming runs", "/events")}</div></section><section class="section green-panel editorial-copy"><h2>Choose a pace<br>you can enjoy.</h2><div><p>For an easy social effort, you should be able to speak in sentences. The event details explain what activities are available; a run lead can help you choose on the day.</p><p>This is general guidance, not a fitness assessment. Choose what suits your health and experience.</p></div></section><section class="section prose faq"><h2>A few good questions.</h2>${[
+    `<section class="section first-run-scenes"><div class="section-head"><h2>A little look<br>at your morning.</h2><p>Your run starts before the starting line.</p></div><div class="first-run-photo-cards"><a href="/events"><img src="/assets/urc-moment-1.jpg" alt="The URC community outside in Harare" loading="lazy"><span>FIND THE PEOPLE</span><h3>Meet us there.</h3></a><a href="#pace-planner"><img src="/assets/urc-moment-4.jpg" alt="URC members together before a run" loading="lazy"><span>FIND YOUR RHYTHM</span><h3>Take your time.</h3></a><a href="/gallery"><img src="/assets/urc-moment-5.jpg" alt="A smiling member of the URC community" loading="lazy"><span>MAKE A MORNING OF IT</span><h3>Stay a while.</h3></a></div></section><section class="section guide-grid"><h2>A little preparation.<br>A simpler start.</h2><div><ul class="checklist">${steps.map(([title, body], i) => `<li><label><input type="checkbox" data-checklist="${i}"><span>${e(title)}</span></label><p>${e(body)}</p></li>`).join("")}</ul><p class="image-credit">Your checklist is kept on this device.</p>${button("See upcoming runs", "/events")}</div></section><section class="section green-panel editorial-copy"><h2>Choose a pace<br>you can enjoy.</h2><div><p>For an easy social effort, you should be able to speak in sentences. The event details explain what activities are available; a run lead can help you choose on the day.</p><p>This is general guidance, not a fitness assessment. Choose what suits your health and experience.</p></div></section><section class="section prose faq"><h2>A few good questions.</h2>${[
       [
         "Do I have to be fast?",
         "Look for the activity and pace that suit you. Each confirmed event lists its options. Ask the organiser if you are uncertain.",
@@ -526,12 +470,10 @@ function joinPage() {
 }
 function shopPage() {
   main.innerHTML =
-    intro(
-      "Wear the club.",
-      "URC merchandise and collaboration collections, when they’re ready to drop.",
-    ) +
-    `<section class="section editorial-copy"><h2>Something to<br>take with you.</h2><div><p>Clothing, running gear and collaboration pieces will have their own product pages, sizing, availability and ordering information.</p><p class="notice">No merchandise is available to order online yet. Checkout and stock need the club’s confirmed merchant platform.</p><a class="text-link" href="/contact?topic=general">Ask the organisers about merchandise ↗</a></div></section><section class="section green-panel editorial-copy"><h2>Made together.</h2><div><p>Have a product collaboration in mind? Tell us what you make and how it could support the URC community.</p><a class="text-link" href="/contact?topic=partnership">Propose a collaboration ↗</a></div></section>`;
+    intro("Shop", "") +
+    `<section class="editorial-photo-row"><img src="/assets/urc-moment-3.jpg" alt="The URC community wearing club shirts" loading="lazy"><div><h2>URC, beyond<br>the run.</h2><p>Club pieces and local collaborations will live here.</p><p>Merchandise isn’t available to order online yet. Ask the team about availability.</p><a class="race-text-link" href="/contact?topic=general">Ask about merchandise <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section>`;
 }
+
 function privacy() {
   main.innerHTML =
     intro(
@@ -651,46 +593,6 @@ async function share(x) {
       toast("Copy this page’s address to share it.");
   }
 }
-async function poster(x) {
-  await document.fonts.ready;
-  const canvas = document.createElement("canvas");
-  canvas.width = 1080;
-  canvas.height = 1350;
-  const ctx = canvas.getContext("2d"),
-    p = x.payload;
-  ctx.fillStyle = { rose: "#edb6b2", ice: "#c4ded9" }[p.theme] || "#7cda4f";
-  ctx.fillRect(0, 0, 1080, 1350);
-  ctx.fillStyle = "#161815";
-  ctx.font = '800 360px "Barlow Condensed"';
-  ctx.fillText("URC", 62, 340);
-  ctx.font = '700 96px "Barlow Condensed"';
-  let line = "",
-    y = 550;
-  for (const word of x.title.toUpperCase().split(" ")) {
-    const next = line + word + " ";
-    if (ctx.measureText(next).width > 950) {
-      ctx.fillText(line, 64, y);
-      line = word + " ";
-      y += 100;
-    } else line = next;
-  }
-  ctx.fillText(line, 64, y);
-  ctx.font = "600 25px Manrope";
-  ctx.fillText(date(p.startsAt), 64, 1050, 950);
-  ctx.fillText(p.location || "Harare, Zimbabwe", 64, 1100, 950);
-  ctx.font = "500 22px Manrope";
-  ctx.fillText("POWERHOUSE URBAN RUN CLUB", 64, 1220);
-  ctx.fillText("FREE ATTENDANCE. OPTIONAL GIVING.", 64, 1270);
-  canvas.toBlob((blob) => {
-    if (!blob) return;
-    const url = URL.createObjectURL(blob),
-      a = document.createElement("a");
-    a.href = url;
-    a.download = `urc-${x.slug}-poster.png`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 3000);
-  }, "image/png");
-}
 function openPhoto(i) {
   if (!photos.length) return;
   photoIndex = (i + photos.length) % photos.length;
@@ -754,6 +656,10 @@ async function init() {
     ]);
     const data = content.ok ? await content.json() : { entries: [] };
     club = await settings.json();
+    if (page === "community" && club.communityEnabled !== true) {
+      location.replace("/club");
+      return;
+    }
     const source = await curated.json();
     const merged = new Map(
       (source.entries ?? []).map((x) => [x.kind + ":" + x.slug, x]),
@@ -808,28 +714,20 @@ async function init() {
     $("#page-retry").onclick = init;
   }
 }
-const menuDialog = document.querySelector("#site-menu-dialog");
+const menuDropdown = document.querySelector("#site-menu-dropdown");
 const menuTrigger = document.querySelector("#open-site-menu");
-menuTrigger?.addEventListener("click", () => {
-  menuDialog.showModal();
-  menuTrigger.setAttribute("aria-expanded", "true");
+menuDropdown?.addEventListener("toggle", () =>
+  menuTrigger.setAttribute("aria-expanded", String(menuDropdown.open)),
+);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && menuDropdown?.open) {
+    menuDropdown.open = false;
+    menuTrigger.setAttribute("aria-expanded", "false");
+    menuTrigger.focus();
+  }
 });
-document
-  .querySelector("#close-site-menu")
-  ?.addEventListener("click", () => menuDialog.close());
-menuDialog?.addEventListener("close", () => {
-  menuTrigger.setAttribute("aria-expanded", "false");
-  menuTrigger.focus();
-});
-menuDialog?.addEventListener("click", (event) => {
-  if (event.target !== menuDialog) return;
-  const r = menuDialog.getBoundingClientRect();
-  if (
-    event.clientX < r.left ||
-    event.clientX > r.right ||
-    event.clientY < r.top ||
-    event.clientY > r.bottom
-  )
-    menuDialog.close();
+document.addEventListener("pointerdown", (event) => {
+  if (menuDropdown?.open && !menuDropdown.contains(event.target))
+    menuDropdown.open = false;
 });
 init();

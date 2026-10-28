@@ -68,3 +68,29 @@ The Feeling replaces the portrait-led experience section. Its black rounded pane
 Syncopate Bold is self-hosted from the Google Fonts apache/syncopate directory; the original Apache 2.0 licence is included in public/assets/syncopate-LICENSE.txt. It is a licensed alternative for the wide display style, not an unlicensed copy of Akira.
 
 The updated photo brief is 19 files: 8 horizontal and 11 vertical, with the official event poster reused across two placements. No backend or Supabase changes accompany this pass.
+
+## Final owner review in this pass · 28 October 2026
+
+The header now has the compact brand label on the left and a small glass Menu disclosure on the right, with links inside the dropdown. Visible hero text, announcement panels and ticker wording are gone. The homepage hero is two viewports tall with a sticky photo and scroll-controlled zoom; the sole image-to-black separator is the overlapping blank green diagonal. The main section surfaces and cards are black, white or neutral grey.
+
+The Feeling now uses three meaning-led illustrations. Run with Powerhouse has three original runner figures that move along their path and change stride with scroll. Your Pace uses three lanes at different speeds, without rankings or invented times. More than the Run brings people together to represent the social side of the club. Number labels have been removed. Grey-to-green headings and grey-to-white body fills remain.
+
+The camera roll has a left-to-right scroll-linked ghost title, four equal-sized photographic tiles, and titles placed inside the pictures. The owner's supplied titles are stored with the current curated album photos as captions, preserving the gallery viewer and credits. Before You Go has three uniformly styled photographic cards; shoe and ticket diagrams and the coloured card backgrounds have been removed.
+
+The Runs directory now opens with just Runs centred over a large photo and a slim matching diagonal. A photographic club introduction comes before the real run listing. The former exposed filter row is inside a closed Search Runs disclosure; actual filtering, saved runs and result announcements are retained. No founding history, race results or external run-club claims were fabricated.
+
+The revised photo brief has 22 source files: 11 horizontal and 11 vertical. The approved downloadable logo files and connected URC booking backend are still pending. No production database change was made.
+
+## Complete review scope · 28 October 2026
+
+Runs, Gallery, Club, Partners, Shop and individual event pages share an 80%-viewport photograph, a centred page/run name, the compact brand at left, a small glass Menu at right and a matching slim diagonal. Additional masthead descriptions and navigation strips have been removed. The Club uses alternating photographic/text rows in white, grey and black; its surrounding links retain Local Collaborations and People/Moments. Gallery uses the reference's official-photo feature and photographic More Photos tiles. Shop and Partners preserve honest availability and confirmed partner records without search controls or invented inventory.
+
+Runs now contains only an editorial introduction and large genuine event cards. The actual single RESET card has its image/date at left, description and sample route figures at right, and Discover/Tickets links with decorative rotating arrow spans. The fake second run remains only in the explicitly labelled homepage design preview. Search/filter/result controls have been removed from these public pages.
+
+Community is paused: removed from navigation, communityEnabled is false in public configuration, client visits redirect to Club, and Vercel redirects Community paths to Club. The underlying account, opt-in privacy permissions and stored data are not deleted. Archived Community browser flows remain tested under an explicit local transport fixture with communityEnabled true; this is not the production state.
+
+RESET detail now uses previous URC photography, a white title, factual sensory event copy, a black course panel, illustrative profile, run figures, native ticket dialog and click-to-load meeting map. The former invitation, save/calendar/poster bar and chapter cards are gone. The confirmed date remains Saturday 31 October 2026. Elevation is left pending; difficulty/distance/time are organiser-supplied/planned values, proposed water checkpoints are labelled, the unprovided Strava route is disabled, and no marked-route claim is invented. Previous/next run controls activate only when another actual upcoming event exists.
+
+Studio exposes hero photo, distance, elevation, difficulty, estimated time, water checkpoints and Strava URL fields. New URL fields receive the existing HTTPS validation and public output remains escaped. No database schema or production database mutation accompanies these changes.
+
+The final image brief is 28 files: 13 horizontal, 15 vertical. Existing photographs intentionally repeat until owner replacements arrive. The approved logo asset and live URC booking backend remain pending.

@@ -72,17 +72,16 @@ try {
   watch(page);
   for (const [route, heading] of [
     ["/", "URC."],
-    ["/events", "Find your run."],
-    ["/gallery", "The moments."],
-    ["/club", "Powerhouse."],
+    ["/events", "Runs"],
+    ["/gallery", "Gallery"],
+    ["/club", "The club"],
     ["/first-run", "Your first run."],
-    ["/partners", "Good company."],
+    ["/partners", "Partners"],
     ["/impact", "A reason to run."],
     ["/contact", "Let’s talk."],
     ["/join", "Your place is out there."],
-    ["/shop", "Wear the club."],
+    ["/shop", "Shop"],
     ["/account", "Your URC."],
-    ["/community", "Urban Run Community."],
     ["/privacy", "Your information."],
   ]) {
     await page.goto(base + route);
@@ -128,7 +127,7 @@ try {
     "Photo-only hero and two landscape-image cards keep the sample run separate from real reservations",
   );
   await page.getByLabel("Navigation menu", { exact: true }).click();
-  await page.getByRole("dialog", { name: "URC", exact: true }).waitFor();
+  await page.getByRole("navigation", { name: "Main navigation" }).waitFor();
   await page.keyboard.press("Escape");
   assert.equal(
     await page.evaluate(() => document.activeElement.id),
@@ -207,37 +206,19 @@ try {
     await page.locator("iframe").getAttribute("src"),
     /56%20Kingsmead/,
   );
-  await page
-    .getByRole("button", { name: "Save this run", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Saved ✓", exact: true }).waitFor();
-  const calendarPromise = page.waitForEvent("download");
-  await page
-    .getByRole("button", { name: "Add to calendar", exact: false })
-    .click();
-  const calendar = await calendarPromise;
-  const bytes = await readFile(await calendar.path(), "utf8");
-  assert.ok(bytes.includes("DTSTART:20261031T053000Z"));
-  const posterPromise = page.waitForEvent("download");
-  await page
-    .getByRole("button", { name: "Download event poster", exact: false })
-    .click();
-  const poster = await posterPromise;
-  assert.match(poster.suggestedFilename(), /poster.png$/);
+  assert.equal(
+    await page.locator("#event-calendar,#event-poster,[data-save]").count(),
+    0,
+  );
+  assert.equal(await page.locator(".course-figures").count(), 1);
+  assert.equal(await page.locator(".course-masthead h1").innerText(), "RESET");
   await page.screenshot({
     path: "review/urc-reset-desktop.png",
     fullPage: true,
   });
   checks.push(
-    "RESET provides guest activity choices, honest unconnected booking state, click-to-load venue map, saved runs, calendar and poster",
+    "RESET course layout keeps real ticket choices and click-to-load map while removing the former action bar",
   );
-  await page.goto(base + "/account");
-  await page.getByRole("heading", { name: "Your URC.", exact: true }).waitFor();
-  await page
-    .getByRole("list")
-    .filter({ has: page.getByRole("link", { name: "RESET", exact: true }) })
-    .waitFor();
-  checks.push("Saved runs persist on the device");
   await page.goto(base + "/first-run");
   await page
     .getByText("Around 35 min on the route.", { exact: true })
@@ -266,32 +247,22 @@ try {
     "Real community album supports full-screen keyboard photo navigation",
   );
   await page.goto(base + "/community?tab=people");
+  await page.waitForURL("**/club");
   await page
-    .getByText("Member discovery is waiting for the URC account connection.", {
-      exact: false,
-    })
+    .getByRole("heading", { name: "The club", exact: true, level: 1 })
     .waitFor();
-  await page.goto(base + "/community");
-  await page.getByRole("button", { name: "Follow URC", exact: true }).click();
-  await page.waitForURL("**/account?intent=follow-urc");
-  checks.push(
-    "Unconnected membership is explicit and following requires an account",
+  await page.getByLabel("Navigation menu", { exact: true }).click();
+  assert.equal(
+    await page
+      .getByRole("navigation", { name: "Main navigation" })
+      .getByRole("link", { name: "Community", exact: true })
+      .count(),
+    0,
   );
-  await page.goto(base + "/contact?topic=volunteer");
-  await page.getByLabel("Your name", { exact: true }).fill("Test person");
-  await page
-    .getByLabel("Email address", { exact: true })
-    .fill("fixture@example.invalid");
-  await page
-    .getByLabel("Your message", { exact: true })
-    .fill("I would like to volunteer.");
-  await page.getByRole("button", { name: "Send to the team" }).click();
-  await page
-    .getByText("The URC message service is not connected yet.", {
-      exact: false,
-    })
-    .waitFor();
-  checks.push("Contact form fails honestly when the backend is unavailable");
+  await page.keyboard.press("Escape");
+  checks.push(
+    "Paused Community routes to The Club and is absent from navigation",
+  );
   for (const route of [
     "/",
     "/events/reset",
@@ -321,9 +292,9 @@ try {
   await page.getByLabel("Navigation menu", { exact: true }).click();
   await page
     .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("link", { name: "Community", exact: true })
+    .getByRole("link", { name: "Gallery", exact: true })
     .click();
-  await page.waitForURL("**/community");
+  await page.waitForURL("**/gallery");
   checks.push(
     "Ten phone layouts fit 390px and the mobile menu navigates to real pages",
   );
@@ -393,6 +364,11 @@ try {
   const connected = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     reducedMotion: "reduce",
+  });
+  // Preserve the archived Community integration checks behind an explicit local transport fixture.
+  await connected.route("**/club.json", async (route) => {
+    const config = JSON.parse(await readFile("public/club.json", "utf8"));
+    await route.fulfill({ json: { ...config, communityEnabled: true } });
   });
   const user = {
     id: memberId,
