@@ -1,4 +1,5 @@
-import { homeExperience, eventExperience } from "./experience.js";
+import { mountRaceWorld } from "./race-world.js";
+import { homeExperience, eventExperience, raceCard } from "./experience.js";
 import { mountReservation } from "./reservation.js";
 import {
   renderCommunity,
@@ -47,8 +48,19 @@ const date = (value) =>
     : "Details to be confirmed";
 const button = (label, url, cls = "") =>
   `<a class="button ${cls}" href="${e(url)}">${e(label)} <span aria-hidden="true">↗</span></a>`;
-const intro = (title, body, back = "") =>
-  `<header class="page-intro">${back ? `<a class="back" href="/${page}">← ${e(back)}</a>` : ""}<div class="page-intro-line"><h1>${e(title)}</h1><p>${e(body)}</p></div></header>`;
+const intro = (title, body, back = "") => {
+  const covers = {
+    events: [
+      "/assets/urc-moment-3.jpg",
+      "The URC community together before a run",
+    ],
+    gallery: ["/assets/urc-moment-1.jpg", "URC members in Harare"],
+    club: ["/assets/urc-moment-3.jpg", "The Powerhouse running community"],
+    "first-run": ["/assets/urc-moment-2.jpg", "Members of the URC community"],
+  };
+  const cover = !back && covers[page];
+  return `<header class="page-intro ${cover ? "race-page-intro" : ""}">${cover ? `<img class="race-page-cover" src="${cover[0]}" alt="${cover[1]}" fetchpriority="high"><div class="race-page-shade"></div><span class="race-page-location">POWERHOUSE / HARARE, ZIMBABWE</span>` : ""}${back ? `<a class="back" href="/${page}">← ${e(back)}</a>` : ""}<div class="page-intro-line"><h1>${e(title)}</h1><p>${e(body)}</p></div></header>`;
+};
 const empty = (title, body, url = "/first-run", label = "Your first run") =>
   `<div class="empty-state"><h2>${e(title)}</h2><p>${e(body)}</p>${button(label, url, "outline")}</div>`;
 function toast(text) {
@@ -91,6 +103,8 @@ function saveRun(id) {
   });
 }
 function card(x) {
+  if (x.kind === "event")
+    return `<div class="entry-race">${raceCard(x, { formatDate: date, past: eventState(x) === "past" })}</div>`;
   const p = x.payload ?? {},
     image = safeUrl(p.coverUrl);
   return `<article class="entry-card"><a href="${path(x)}"><div class="entry-art">${image ? `<img class="${x.kind === "partner" ? "partner-logo" : ""}" src="${e(image)}" alt="${e(p.coverAlt || x.title)}" loading="lazy">` : '<span class="poster-mark" aria-hidden="true">U<i>R</i>C</span>'}</div><div class="entry-meta">${e(x.kind === "event" ? date(p.startsAt) : p.partnerType || p.category || "URC / HARARE")}</div><h2>${e(x.title)}</h2><p>${e(p.summary || p.purpose || p.contribution || "")}</p><span class="entry-action">${x.kind === "album" ? "Open album" : x.kind === "event" ? "View run" : "Read the story"} ↗</span></a></article>`;
@@ -129,7 +143,14 @@ function home() {
       entries.find(
         (x) => x.kind === "page" && x.slug === "homepage-introduction",
       )?.payload ?? {};
-  main.innerHTML = homeExperience({ next, albums, settings, formatDate: date });
+  main.innerHTML = homeExperience({
+    next,
+    events,
+    albums,
+    settings,
+    formatDate: date,
+  });
+  mountRaceWorld();
 }
 
 function directory() {
@@ -270,6 +291,10 @@ function detail(x) {
         related: linkRelated(x),
       }),
     );
+    $(".event-world").style.setProperty(
+      "--event-color",
+      { ice: "#c4def0", rose: "#efc8c2", lime: "#c6e7a5" }[theme],
+    );
     $("#load-venue-map").addEventListener("click", () => {
       const frame = document.createElement("iframe");
       frame.title = "Event meeting point: " + p.location;
@@ -381,7 +406,7 @@ function firstRun() {
       "Your first run.",
       "You can arrive on your own. Here’s what to know before you do.",
     ) +
-    `<section class="section guide-grid"><h2>A little preparation.<br>A simpler start.</h2><div><ul class="checklist">${steps.map(([title, body], i) => `<li><label><input type="checkbox" data-checklist="${i}"><span>${e(title)}</span></label><p>${e(body)}</p></li>`).join("")}</ul><p class="image-credit">Your checklist is kept on this device.</p>${button("See upcoming runs", "/events")}</div></section><section class="section green-panel editorial-copy"><h2>Choose a pace<br>you can enjoy.</h2><div><p>For an easy social effort, you should be able to speak in sentences. The event details explain what activities are available; a run lead can help you choose on the day.</p><p>This is general guidance, not a fitness assessment. Choose what suits your health and experience.</p></div></section><section class="section prose faq"><h2>A few good questions.</h2>${[
+    `<section class="section first-run-scenes"><div class="section-head"><h2>A little look<br>at your morning.</h2><p>Your run starts before the starting line.</p></div><div class="first-run-photo-cards"><a href="/events"><img src="/assets/urc-moment-1.jpg" alt="The URC community outside in Harare" loading="lazy"><span>01 / FIND THE PEOPLE</span><h3>Meet us there.</h3></a><a href="#pace-planner"><img src="/assets/urc-moment-4.jpg" alt="URC members together before a run" loading="lazy"><span>02 / FIND YOUR RHYTHM</span><h3>Take your time.</h3></a><a href="/gallery"><img src="/assets/urc-moment-5.jpg" alt="A smiling member of the URC community" loading="lazy"><span>03 / MAKE A MORNING OF IT</span><h3>Stay a while.</h3></a></div></section><section class="section guide-grid"><h2>A little preparation.<br>A simpler start.</h2><div><ul class="checklist">${steps.map(([title, body], i) => `<li><label><input type="checkbox" data-checklist="${i}"><span>${e(title)}</span></label><p>${e(body)}</p></li>`).join("")}</ul><p class="image-credit">Your checklist is kept on this device.</p>${button("See upcoming runs", "/events")}</div></section><section class="section green-panel editorial-copy"><h2>Choose a pace<br>you can enjoy.</h2><div><p>For an easy social effort, you should be able to speak in sentences. The event details explain what activities are available; a run lead can help you choose on the day.</p><p>This is general guidance, not a fitness assessment. Choose what suits your health and experience.</p></div></section><section class="section prose faq"><h2>A few good questions.</h2>${[
       [
         "Do I have to be fast?",
         "Look for the activity and pace that suit you. Each confirmed event lists its options. Ask the organiser if you are uncertain.",

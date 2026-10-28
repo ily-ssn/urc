@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run build && node --env-file-if-exists=.env.local scripts/dev-server.mjs",
-    "check": "node --check public/site.js && node --check public/experience.js && node --check public/reservation.js && node --check public/network.js && node --check public/studio.js && node --check public/pass.js && node scripts/check.mjs",
+    "check": "node --check public/site.js && node --check public/experience.js && node --check public/race-world.js && node --check public/reservation.js && node --check public/network.js && node --check public/studio.js && node --check public/pass.js && node scripts/check.mjs",
     "build": "npm run check && node scripts/build.mjs",
     "test:db": "node tests/database.mjs",
     "test": "node tests/api.mjs && node tests/revamp-api.mjs && npm run test:db && node tests/community-db.mjs",

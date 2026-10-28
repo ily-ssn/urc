@@ -105,6 +105,28 @@ try {
   assert.equal(await page.locator('img[src="/assets/hero.webp"]').count(), 0);
   await page.screenshot({ path: "review/urc-home-desktop.png" });
   checks.push("Homepage uses real supplied-organiser photography");
+  assert.equal(
+    await page.locator('img[src="/assets/urc-emblem.jpg"]').count(),
+    0,
+  );
+  assert.equal(await page.locator(".race-hero").count(), 1);
+  await page.locator(".race-manifesto").scrollIntoViewIfNeeded();
+  await page.waitForFunction(
+    () => !document.querySelector(".route-word:not(.is-filled)"),
+  );
+  assert.equal(await page.locator(".urc-entrance").count(), 0);
+  checks.push(
+    "Race-world reduced-motion view is fully readable and does not use the rejected Eventbrite identity",
+  );
+  await page.getByRole("link", { name: "Tickets for RESET" }).click();
+  await page.getByRole("button", { name: "Reserve a spot" }).click();
+  await page.getByRole("dialog", { name: "RESET", exact: true }).waitFor();
+  assert.equal(await page.locator(".ticket-choice").count(), 3);
+  await page.keyboard.press("Escape");
+  checks.push(
+    "Homepage ticket card opens the corresponding run and its real activity choices",
+  );
+
   await page.goto(base + "/events/reset");
   await page
     .getByRole("heading", { name: "RESET", exact: true, level: 1 })

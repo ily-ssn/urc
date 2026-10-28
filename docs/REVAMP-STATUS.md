@@ -46,3 +46,11 @@ The Studio helper is disabled by default. Configure `URC_AI_ENABLED=true`, a ser
 ## Interface refinement · 28 October 2026
 
 The homepage now has distinct event-edition, community portrait, photo contact-sheet and first-run layouts. The event page has larger chapter typography, rounded action controls, a consent-based Google venue map, a schedule and a guest reservation dialog. Recovery venue details are editable in Studio and remain absent until confirmed. The automatic Luxenova sponsor profile has been removed; design attribution appears only once in the bottom footer. The original logo and further owner photos are still pending. No live Supabase change was made: the connector still denies access to URC.
+
+## Race-world direction · 28 October 2026
+
+A new image-led homepage follows the owner's sports-site references through an extended hero, slanted green divider, scroll-drawn illustrative route and word fill, event-themed race/ticket cards, club experience chapters, a staggered photo strip and practical guide cards. Runs, Gallery, Club and First Run have full-height photo openings. Reference photographs/brand assets are not reused. Current URC photographs repeat intentionally pending the owner's replacement images; see PHOTO-BRIEF.md for 21 image exports (8 horizontal, 13 vertical).
+
+Every race card has a ticket link to its event's registration section. The RESET detail page retains the real guest reservation choices, map, calendar, saved-run controls and honest pending backend state. No new backend, authentication, payment or production database change is included.
+
+The old Eventbrite logo has been removed from header, hero and Community. The approved logo files were shown inline in chat but are not downloadable workspace assets yet. A short skip-enabled, once-per-tab entrance is prepared, with reduced-motion support; it remains inactive until the exact approved logo is installed. Do not describe this entrance or the final branding as live until that dependency is resolved.
