@@ -1,3 +1,4 @@
+import { galleryHighlights } from "../lib/gallery.js";
 import { mountRaceWorld } from "./race-world.js";
 import {
   homeExperience,
@@ -67,7 +68,7 @@ const intro = (title, body, back = "") => {
   const cover = !back && covers[page];
   if (
     cover &&
-    ["events", "gallery", "club", "partners", "shop"].includes(page)
+    ["events", "gallery", "club", "partners", "shop", "first-run"].includes(page)
   ) {
     const labels = {
       events: "Runs",
@@ -75,6 +76,7 @@ const intro = (title, body, back = "") => {
       club: "The club",
       partners: "Partners",
       shop: "Shop",
+      "first-run": "Your first run",
     };
     return `<header class="runs-cover shared-masthead"><img src="${cover[0]}" alt="${cover[1]}" fetchpriority="high"><div class="runs-cover-shade"></div><h1>${labels[page]}</h1><div class="runs-diagonal" aria-hidden="true"></div></header>`;
   }
@@ -158,7 +160,7 @@ function home() {
           Date.parse(a.payload.startsAt) - Date.parse(b.payload.startsAt),
       ),
     next = events[0],
-    albums = entries.filter((x) => x.kind === "album").slice(0, 3),
+    albums = entries.filter((x) => x.kind === "album"),
     settings =
       entries.find(
         (x) => x.kind === "page" && x.slug === "homepage-introduction",
@@ -184,19 +186,14 @@ function runsPage() {
     `<section class="runs-tradition"><div class="runs-tradition-photo"><img src="/assets/urc-moment-3.jpg" alt="Urban Run Community together in Harare" loading="lazy"></div><div class="runs-tradition-copy"><h2>Powerhouse.<br>On foot.</h2><p>We meet in Harare, run together and make a morning of it.</p><p>Each run has its own plan: a cause to support, a local collaboration, something to do after the finish. Pick the one that feels like your kind of day.</p><a class="race-text-link" href="/club">Meet the club ↗</a></div></section><section class="run-feature-list" aria-label="Upcoming runs">${events.length ? events.map(runFeature).join("") : "<p>The next run is being planned. Confirmed details will appear here.</p>"}</section>`;
 }
 function galleryPage() {
-  const albums = entries.filter((x) => x.kind === "album");
-  const first = albums[0],
-    images = albums
-      .flatMap((a) =>
-        (a.payload.photos || [])
-          .filter((p) => safeUrl(p.url))
-          .map((p, i) => ({ ...p, album: a, index: i })),
-      )
-      .slice(0, 4);
+  const albums = entries.filter((x) => x.kind === "album").sort((a,b) => Date.parse(b.payload?.galleryDate || b.updatedAt || 0) - Date.parse(a.payload?.galleryDate || a.updatedAt || 0));
+  const first = albums[0], images = galleryHighlights(albums);
+  const website = entries.find(x => x.kind === "page" && x.slug === "homepage-introduction")?.payload || {};
+  const browseUrl = safeUrl(website.galleryDriveUrl) || (first ? "/gallery/" + encodeURIComponent(first.slug) : "/gallery");
   main.innerHTML =
     intro("Gallery", "") +
     (first
-      ? `<section class="editorial-photo-row gallery-official"><img src="${e(safeUrl(first.payload.coverUrl) || "/assets/urc-moment-1.jpg")}" alt="URC community photograph" loading="lazy"><div><h2>Official photos</h2><p>From the start to everything after. Photographs from the URC community.</p><a class="race-text-link" href="/gallery/${e(encodeURIComponent(first.slug))}">Browse the photos <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="gallery-more"><header class="ref-section-heading"><div class="ref-section-ghost" aria-hidden="true">MORE PHOTOS</div><h2>More photos</h2></header><div class="race-photo-strip">${images.map((im) => `<a href="/gallery/${e(encodeURIComponent(im.album.slug))}#photo-${im.index + 1}"><img src="${e(safeUrl(im.url))}" alt="${e(im.alt || "URC community photograph")}" loading="lazy"><span class="camera-image-title">${e(im.caption || "Powerhouse")}</span></a>`).join("")}</div></section>`
+      ? `<section class="editorial-photo-row gallery-official"><img src="${e(safeUrl(first.payload.coverUrl) || "/assets/urc-moment-1.jpg")}" alt="URC community photograph" loading="lazy"><div><h2>Official photos</h2><p>From the start to everything after. Photographs from the URC community.</p><a class="race-text-link" href="${e(browseUrl)}">Browse the photos <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="gallery-more"><header class="ref-section-heading"><div class="ref-section-ghost" aria-hidden="true">MORE PHOTOS</div><h2>More photos</h2></header><div class="race-photo-strip">${images.map((im) => `<a href="/gallery/${e(encodeURIComponent(im.album.slug))}#photo-${im.index + 1}"><img src="${e(safeUrl(im.url))}" alt="${e(im.alt || "URC community photograph")}" loading="lazy"><span class="camera-image-title">${e(im.caption || "Powerhouse")}</span></a>`).join("")}</div></section>`
       : '<section class="section"><h2>Photos coming soon.</h2><a class="race-text-link" href="/events">See the runs ↗</a></section>');
 }
 function partnersPage() {
@@ -359,7 +356,7 @@ function firstRun() {
       "Your first run.",
       "You can arrive on your own. Here’s what to know before you do.",
     ) +
-    `<section class="section first-run-scenes"><div class="section-head"><h2>A little look<br>at your morning.</h2><p>Your run starts before the starting line.</p></div><div class="first-run-photo-cards"><a href="/events"><img src="/assets/urc-moment-1.jpg" alt="The URC community outside in Harare" loading="lazy"><span>FIND THE PEOPLE</span><h3>Meet us there.</h3></a><a href="#pace-planner"><img src="/assets/urc-moment-4.jpg" alt="URC members together before a run" loading="lazy"><span>FIND YOUR RHYTHM</span><h3>Take your time.</h3></a><a href="/gallery"><img src="/assets/urc-moment-5.jpg" alt="A smiling member of the URC community" loading="lazy"><span>MAKE A MORNING OF IT</span><h3>Stay a while.</h3></a></div></section><section class="section guide-grid"><h2>A little preparation.<br>A simpler start.</h2><div><ul class="checklist">${steps.map(([title, body], i) => `<li><label><input type="checkbox" data-checklist="${i}"><span>${e(title)}</span></label><p>${e(body)}</p></li>`).join("")}</ul><p class="image-credit">Your checklist is kept on this device.</p>${button("See upcoming runs", "/events")}</div></section><section class="section green-panel editorial-copy"><h2>Choose a pace<br>you can enjoy.</h2><div><p>For an easy social effort, you should be able to speak in sentences. The event details explain what activities are available; a run lead can help you choose on the day.</p><p>This is general guidance, not a fitness assessment. Choose what suits your health and experience.</p></div></section><section class="section prose faq"><h2>A few good questions.</h2>${[
+    `<section class="section first-run-scenes"><div class="section-head"><h2>A little look<br>at your morning.</h2><p>Your run starts before the starting line.</p></div><div class="first-run-photo-cards"><article><img src="/assets/urc-moment-1.jpg" alt="The URC community outside in Harare" loading="lazy"><span>FIND THE PEOPLE</span><h3>Meet us there.</h3></article><article><img src="/assets/urc-moment-4.jpg" alt="URC members together before a run" loading="lazy"><span>FIND YOUR RHYTHM</span><h3>Take your time.</h3></article><article><img src="/assets/urc-moment-5.jpg" alt="A smiling member of the URC community" loading="lazy"><span>MAKE A MORNING OF IT</span><h3>Stay a while.</h3></article></div></section><section class="section guide-grid"><h2>A little preparation.<br>A simpler start.</h2><div><ul class="checklist">${steps.map(([title, body], i) => `<li><label><input type="checkbox" data-checklist="${i}"><span>${e(title)}</span></label><p>${e(body)}</p></li>`).join("")}</ul><p class="image-credit">Your checklist is kept on this device.</p>${button("See upcoming runs", "/events")}</div></section><section class="section green-panel editorial-copy"><h2>Choose a pace<br>you can enjoy.</h2><div><p>For an easy social effort, you should be able to speak in sentences. The event details explain what activities are available; a run lead can help you choose on the day.</p><p>This is general guidance, not a fitness assessment. Choose what suits your health and experience.</p></div></section><section class="section prose faq"><h2>A few good questions.</h2>${[
       [
         "Do I have to be fast?",
         "Look for the activity and pace that suit you. Each confirmed event lists its options. Ask the organiser if you are uncertain.",
@@ -725,9 +722,38 @@ async function init() {
 }
 const menuDropdown = document.querySelector("#site-menu-dropdown");
 const menuTrigger = document.querySelector("#open-site-menu");
-menuDropdown?.addEventListener("toggle", () =>
-  menuTrigger.setAttribute("aria-expanded", String(menuDropdown.open)),
-);
+menuDropdown?.addEventListener("toggle", () => {
+  menuTrigger.setAttribute("aria-expanded", String(menuDropdown.open));
+  document.body.classList.toggle("menu-is-open", menuDropdown.open);
+  main.inert = menuDropdown.open;
+  document.querySelector("body > .footer").inert = menuDropdown.open;
+});
+// Sample the section behind the floating identity instead of blending within a header layer.
+let toneFrame = 0;
+function updateBrandTone() {
+  toneFrame = 0;
+  const brand = document.querySelector(".wordmark-link");
+  if (!brand) return;
+  const rect = brand.getBoundingClientRect();
+  const underneath = document.elementsFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+    .find(node => !node.closest(".race-navigation, .urc-entrance, .skip"));
+  let node = underneath, light = true;
+  if (node?.closest(".runs-cover,.race-hero,.race-page-intro")) light = false;
+  else while (node) {
+    const color = getComputedStyle(node).backgroundColor.match(/[\d.]+/g);
+    if (color && (color.length < 4 || Number(color[3]) > .8)) {
+      light = Number(color[0]) * .2126 + Number(color[1]) * .7152 + Number(color[2]) * .0722 > 145;
+      break;
+    }
+    node = node.parentElement;
+  }
+  brand.dataset.tone = light ? "dark" : "light";
+}
+const scheduleTone = () => { if (!toneFrame) toneFrame = requestAnimationFrame(updateBrandTone); };
+addEventListener("scroll", scheduleTone, {passive:true});
+addEventListener("resize", scheduleTone);
+new MutationObserver(scheduleTone).observe(main, {childList:true});
+scheduleTone();
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && menuDropdown?.open) {
     menuDropdown.open = false;

@@ -2161,3 +2161,74 @@ body:not([data-page="home"]):not(:has(.shared-masthead)):not(
   #main {
   padding-top: 85px;
 }
+
+/* The band lives wholly inside the photograph: both edges remain diagonal. */
+.shared-masthead {
+  height: 94svh;
+  min-height: 620px;
+  max-height: 1250px;
+  padding-bottom: 85px;
+  isolation: isolate;
+}
+.shared-masthead > img {transform: none; clip-path: polygon(0 0,100% 0,100% 100%,0 calc(100% - 3.2vw));}
+.shared-masthead .runs-cover-shade {clip-path: polygon(0 0,100% 0,100% 100%,0 calc(100% - 3.2vw));}
+.shared-masthead {background: #fff; overflow: hidden;}
+.shared-masthead h1 {transform: translateY(5svh); z-index: 1;}
+.shared-masthead .runs-diagonal {
+  bottom: 0; left: 0; width: 100%; height: calc(56px + 3.2vw);
+  transform: none; background: #b0ec49;
+  clip-path: polygon(0 0,100% 3.2vw,100% 100%,0 calc(100% - 3.2vw));
+  z-index: 2;
+}
+.course-masthead .runs-diagonal {background: #b0ec49;}
+.footer {margin-top: 0;}
+.race-navigation > .wordmark-link {mix-blend-mode: normal; transition: color .18s;}
+.race-navigation > .wordmark-link[data-tone="dark"] {color: #141414;}
+.race-navigation > .wordmark-link[data-tone="light"] {color: #fff;}
+body.menu-is-open #main, body.menu-is-open .footer {filter: blur(12px); pointer-events: none;}
+body.menu-is-open .wordmark-link {filter: blur(5px);}
+.site-menu-panel {box-shadow: 0 18px 90px #0003;}
+.race-text-link {
+  display: inline-flex; align-items: center; justify-content: center; gap: 20px;
+  padding: 15px 23px; border: 1px solid currentColor; border-radius: 15px;
+  text-decoration: none; line-height: 1.4;
+}
+.race-text-link:disabled {opacity: .45; cursor: default;}
+.race-club-intro .race-text-link {background: #b0ec49; color: #141414; padding: 16px 26px;}
+.button .ui-arrow, .race-text-link .ui-arrow, .site-menu-panel .ui-arrow {
+  transition: transform .28s cubic-bezier(.2,.7,.2,1);
+}
+:is(.button,.race-text-link,.site-menu-panel a):is(:hover,:focus-visible) .ui-arrow {transform: rotate(45deg);}
+.race-text-link:is(:hover,:focus-visible) > span[aria-hidden] {transform: none;}
+.home-event-overlay {
+  position: absolute; inset: 0 0 auto; height: 100svh; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  color: #fff; padding: 12svh 22px 7svh;
+  opacity: var(--hero-copy-opacity,1); transform: translateY(var(--hero-copy-y,0px));
+}
+.home-hero-identity {font: 900 clamp(45px,6vw,95px)/1 var(--display); letter-spacing: -.07em;}
+.home-event-copy {margin: auto 0 0; padding-bottom: 6svh;}
+.home-event-copy > p:first-child {font-size: clamp(19px,3.5vw,48px); font-weight: 600; margin: 0 0 16px;}
+.race-hero .home-event-copy h1 {font: 700 clamp(45px,7vw,112px)/1.1 var(--race-wide); color: #b0ec49; text-transform: uppercase; letter-spacing: -.075em; margin: 0 0 28px;}
+.home-event-date {font-size: clamp(13px,1.6vw,23px); font-weight: 700; margin-bottom: 30px;}
+.home-event-actions {display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;}
+.home-hero-button {background: #2227; border: 1px solid #fff; backdrop-filter: blur(14px); color: #fff; border-radius: 18px; padding: 13px 20px;}
+.home-hero-button span {display: grid; place-items: center; border-radius: 50%; padding: 8px; background: #b0ec49; color: #151515;}
+.entrance-playing .race-hero-media img {animation: home-photo-settle 2.8s both;}
+@keyframes home-photo-settle {from {transform: scale(1.45);} to {transform: scale(1.2);}}
+@media(max-width:700px) {
+  .shared-masthead {height:94svh; min-height:560px; padding-bottom:70px;}
+  .shared-masthead h1 {font-size: clamp(33px,8vw,66px);}
+  .shared-masthead .runs-diagonal {height: calc(38px + 3.2vw);}
+  .home-event-overlay {padding-top: 15svh;}
+  .home-event-copy {padding-bottom: 8svh;}
+  .home-event-actions .button {font-size: 12px; gap: 12px;}
+  .home-event-date {max-width:260px; margin-left:auto; margin-right:auto;}
+}
+@media(prefers-reduced-motion:reduce) {
+  .entrance-playing .race-hero-media img {animation:none;}
+  .button .ui-arrow,.race-text-link .ui-arrow {transition:none;}
+}
+.lettering-entrance .entrance-letter {stroke: #434942; stroke-width: 7; animation-duration: 2.4s;}
+.lettering-entrance .entrance-cut {transform-origin: 445px 360px;}
+@media(prefers-reduced-motion:reduce) {.home-event-overlay {transform:none;}}

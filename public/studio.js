@@ -1,9 +1,14 @@
+import { homeExperience, eventExperience } from "./experience.js";
+import { escapeHtml, safeUrl } from "../lib/public.js";
 import jsQR from "jsqr";
 import { createClient } from "@supabase/supabase-js";
 import { entryIssues, slugify } from "../lib/entries.js";
 const $ = (q, root = document) => root.querySelector(q),
   $$ = (q, root = document) => [...root.querySelectorAll(q)];
 const preview = new URL(location.href).searchParams.get("preview") === "1";
+let previewTimer, previewGeneration = 0, previewSource;
+const getPreviewSource = () => previewSource ||= fetch("/community.json").then(r => r.json()).catch(() => ({entries:[]}));
+const mediaPreviewUrls = new Map();
 let client = null,
   staff = null,
   rows = [],
@@ -43,9 +48,9 @@ const fields = {
     ],
     [
       "purpose",
-      "The purpose and charity",
+      "Run overview",
       "textarea",
-      "Explain why this run matters and who benefits.",
+      "Describe the run, the plan and any confirmed cause.",
     ],
     [
       "partnerOffer",
@@ -179,7 +184,17 @@ const fields = {
     ],
   ],
 };
+fields.page.push(
+  ["galleryDriveUrl", "Browse photos — Google Drive link", "url", "Optional shared folder URL. Leave empty to use URC’s album viewer."],
+  ["prepRunUrl", "Before you go — Find the run photo", "url", "Or choose an uploaded photo below."],
+  ["prepSimpleUrl", "Before you go — Keep it simple photo", "url", "Or choose an uploaded photo below."],
+  ["prepTicketUrl", "Before you go — Keep your ticket photo", "url", "Or choose an uploaded photo below."],
+);
+fields.album.push(["galleryDate", "Gallery date", "date", "Newest galleries appear first in the latest four. Older albums stay saved."]);
 fields.event.push(
+  ["headline", "Intro headline", "text", "For example: Run. Cold plunge. Sauna."],
+  ["description", "Run description", "textarea", "The full introduction below the banner."],
+  ["figuresUrl", "Run figures portrait", "url", "Optional HTTPS portrait, or choose an uploaded photo below."],
   [
     "heroUrl",
     "Run page hero photo",
@@ -938,11 +953,63 @@ $("#sign-out").addEventListener("click", async () => {
   rows = [];
   location.replace("/studio");
 });
+async function openHomepageEditor() {
+  kind = "page";
+  const existing = rows.find(row => row.kind === "page" && row.slug === "homepage-introduction");
+  if (existing) return edit(existing);
+  edit();
+  entry.title = "Homepage introduction";
+  entry.slug = "homepage-introduction";
+  const source = await getPreviewSource();
+  const curated = source.entries.find(row => row.kind === "page" && row.slug === entry.slug);
+  if (curated) entry.payload = structuredClone(curated.payload);
+  renderFields(); renderPhotos(); setupVisualEditor();
+}
+function setupVisualEditor() {
+  const active = ["event", "album"].includes(kind) || (kind === "page" && entry.slug === "homepage-introduction");
+  $("#visual-editor").hidden = !active;
+  $("#studio-editor").classList.toggle("has-visual-editor", active);
+  if (kind === "page" && entry.slug === "homepage-introduction") $("#editor-title").textContent = "EDIT YOUR HOMEPAGE.";
+  $("#visual-title").textContent = kind === "event" ? "Your run page" : kind === "album" ? "Your gallery" : "Your homepage";
+  scheduleVisualPreview();
+}
+function scheduleVisualPreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(renderVisualPreview, 180);
+}
+async function renderVisualPreview() {
+  if (!entry || $("#visual-editor").hidden) return;
+  const generation = ++previewGeneration;
+  const current = structuredClone(entry);
+  const source = await getPreviewSource();
+  if (generation !== previewGeneration || current.id !== entry.id) return;
+  const payload = current.payload;
+  for (const key of ["coverPath","heroPath","figuresPath","prepRunPath","prepSimplePath","prepTicketPath"])
+    if (payload[key] && mediaPreviewUrls.has(payload[key])) payload[key.replace(/Path$/, "Url")] = mediaPreviewUrls.get(payload[key]);
+  payload.photos = (payload.photos || []).map(photo => ({...photo,url:mediaPreviewUrls.get(photo.path) || photo.url}));
+  const formatDate = value => Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat("en-GB", {dateStyle:"long",timeStyle:"short",timeZone:"Africa/Harare"}).format(new Date(value)) + " CAT" : "Choose a date and time";
+  let content;
+  if (kind === "event") content = eventExperience({...current,title:current.title || "Your run"}, {state:"upcoming",formatDate,related:""}).replace('<div id="registration-form"></div>', '<button class="button" type="button">Reserve a spot ↗</button>');
+  else if (kind === "page") {
+    const all = [...rows.filter(row => row.status === "published"), ...(source.entries || [])];
+    const events = all.filter(row => row.kind === "event");
+    content = homeExperience({next:events[0],events,albums:all.filter(row=>row.kind==="album"),settings:payload,formatDate});
+  } else content = `<section class="studio-album-preview"><h1>${escapeHtml(current.title || "Your gallery")}</h1><div>${payload.photos.map(photo=>`<figure><img src="${escapeHtml(safeUrl(photo.url))}" alt="${escapeHtml(photo.alt)}"><figcaption>${escapeHtml(photo.caption)}</figcaption></figure>`).join("")}</div></section>`;
+  const base = escapeHtml(location.origin + "/");
+  const canvas = $("#visual-canvas");
+  const scroll = canvas.contentWindow?.scrollY || 0;
+  canvas.onload = () => canvas.contentWindow.scrollTo(0, scroll);
+  canvas.srcdoc = `<!doctype html><html lang="en"><head><base href="${base}"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/site.css"><link rel="stylesheet" href="/race-world.css"><link rel="stylesheet" href="/race-refinement.css"><style>body{margin:0}a,button{pointer-events:none}.race-hero{height:100svh;min-height:600px}.route-word{color:#fff}.studio-album-preview{padding:30px}.studio-album-preview>div{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}figure{margin:0}figure img{width:100%;aspect-ratio:3/4;object-fit:cover}.feeling-fill-heading,.feeling-fill-copy{--feeling-fill:100%}</style></head><body class="home-arrived"><main>${content}</main></body></html>`;
+}
+$$("[data-canvas-width]").forEach(button => button.addEventListener("click", () => {
+  $("#visual-canvas").style.width = button.dataset.canvasWidth;
+  $$("[data-canvas-width]").forEach(control => control.setAttribute("aria-pressed", String(control === button)));
+}));
 function list(type) {
   kind = type;
   show("studio-list");
   $("#list-title").textContent = labels[kind][0].toUpperCase();
-  $("#new-entry").textContent = `New ${labels[kind][1]} +`;
+  $("#new-entry").textContent = kind === "event" ? "Add a run +" : `New ${labels[kind][1]} +`;
   const root = $("#entry-list");
   root.replaceChildren();
   const items = rows.filter((row) => row.kind === kind);
@@ -981,6 +1048,8 @@ $$("[data-section]").forEach((button) =>
         ? show("shop-setup")
         : button.dataset.section === "team"
           ? openTeam()
+          : button.dataset.section === "website-visual"
+            ? openHomepageEditor()
           : button.dataset.section === "day"
             ? openEventDay()
             : list(button.dataset.section);
@@ -1009,6 +1078,7 @@ function edit(row) {
           theme: "lime",
           registration: "coming-soon",
           registrationMode: "free-pass",
+          galleryDate: kind === "album" ? new Date().toISOString().slice(0,10) : "",
         },
         revision: 0,
       };
@@ -1043,6 +1113,7 @@ function edit(row) {
   $("#writing-status").textContent = "";
   renderFields();
   renderPhotos();
+  setupVisualEditor();
 }
 function renderFields() {
   const root = $("#editor-fields");
@@ -1063,6 +1134,9 @@ function renderFields() {
   const arrivalKeys = [
     "endsAt",
     "heroUrl",
+    "figuresUrl",
+    "headline",
+    "description",
     "distance",
     "elevation",
     "difficulty",
@@ -1181,6 +1255,8 @@ function renderFields() {
       if (type !== "textarea") input.type = type;
     }
     input.name = key;
+    input.setAttribute("aria-label", label);
+    input.setAttribute("aria-describedby", `entry-hint-${key}`);
     input.value =
       key === "title" || key === "slug"
         ? (entry[key] ?? "")
@@ -1201,10 +1277,14 @@ function renderFields() {
           type === "datetime-local" && input.value
             ? new Date(input.value + "+02:00").toISOString()
             : input.value;
+      if (key.endsWith("Url")) delete entry.payload[key.replace(/Url$/, "Path")];
       dirty = true;
+      scheduleVisualPreview();
       $("#save-message").textContent = "Unsaved changes";
     });
-    field.append(input, make("small", hint));
+    const help = make("small", hint);
+    help.id = `entry-hint-${key}`;
+    field.append(input, help);
     const group = registrationKeys.includes(key)
       ? 1
       : arrivalKeys.includes(key)
@@ -1417,7 +1497,7 @@ async function renderPhotos() {
       const { data } = await client.storage
         .from("urc-media")
         .createSignedUrl(photo.path, 600);
-      if (data?.signedUrl) image.src = data.signedUrl;
+      if (data?.signedUrl) { image.src = data.signedUrl; mediaPreviewUrls.set(photo.path, data.signedUrl); }
     }
     const controls = make("div"),
       label = make("label", "Caption"),
@@ -1453,6 +1533,21 @@ async function renderPhotos() {
       }
     });
     actions.append(cover, remove);
+    const slots = kind === "event" ? [["heroPath", "Use as banner"], ["figuresPath", "Use beside figures"]]
+      : kind === "page" ? [["coverPath", "Use as homepage hero"], ["prepRunPath", "Use for Find the run"], ["prepSimplePath", "Use for Keep it simple"], ["prepTicketPath", "Use for Keep your ticket"]] : [];
+    for (const [key, label] of slots) {
+      const assign = make("button", label + (entry.payload[key] === photo.path && photo.path ? " ✓" : ""));
+      assign.type = "button";
+      assign.addEventListener("click", () => {
+        if (photo.path) entry.payload[key] = photo.path;
+        else if (safeUrl(photo.url)) entry.payload[key.replace(/Path$/, "Url")] = photo.url;
+        dirty = true;
+        $("#save-message").textContent = "Unsaved changes";
+        renderPhotos();
+        scheduleVisualPreview();
+      });
+      actions.append(assign);
+    }
     const altLabel = make("label", "Image description"),
       altInput = make("input"),
       creditLabel = make("label", "Photographer / credit"),
@@ -1492,6 +1587,7 @@ async function renderPhotos() {
     card.append(image, controls);
     root.append(card);
   }
+  scheduleVisualPreview();
 }
 function amountMinor(value) {
   if (!/^\d{1,7}(\.\d{1,2})?$/.test(value.trim()))

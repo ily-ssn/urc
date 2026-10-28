@@ -71,11 +71,11 @@ try {
     page = await context.newPage();
   watch(page);
   for (const [route, heading] of [
-    ["/", "URC."],
+    ["/", "The Reset"],
     ["/events", "Runs"],
     ["/gallery", "Gallery"],
     ["/club", "The club"],
-    ["/first-run", "Your first run."],
+    ["/first-run", "Your first run"],
     ["/partners", "Partners"],
     ["/impact", "A reason to run."],
     ["/contact", "Let’s talk."],
@@ -99,7 +99,7 @@ try {
     checks.push("Dedicated page " + route);
   }
   await page.goto(base + "/");
-  await page.getByRole("heading", { name: "URC.", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "The Reset", exact: true, level: 1 }).waitFor();
   await page.evaluate(() => document.fonts.ready);
   assert.equal(await page.locator('img[src="/assets/hero.webp"]').count(), 0);
   await page.screenshot({ path: "review/urc-home-desktop.png" });
@@ -124,7 +124,7 @@ try {
   assert.equal(await page.getByRole("button", { name: /Reserve/ }).count(), 0);
   await page.keyboard.press("Escape");
   checks.push(
-    "Photo-only hero and two landscape-image cards keep the sample run separate from real reservations",
+    "Upcoming-run hero and two landscape-image cards keep the sample run separate from real reservations",
   );
   await page.getByLabel("Navigation menu", { exact: true }).click();
   await page.getByRole("navigation", { name: "Main navigation" }).waitFor();
@@ -150,7 +150,7 @@ try {
   );
   await page.getByRole("link", { name: "Discover run", exact: true }).click();
   await page.getByRole("button", { name: "Reserve a spot" }).click();
-  await page.getByRole("dialog", { name: "RESET", exact: true }).waitFor();
+  await page.getByRole("dialog", { name: "The Reset", exact: true }).waitFor();
   assert.equal(await page.locator(".ticket-choice").count(), 3);
   await page.keyboard.press("Escape");
   checks.push(
@@ -159,14 +159,14 @@ try {
 
   await page.goto(base + "/events/reset");
   await page
-    .getByRole("heading", { name: "RESET", exact: true, level: 1 })
+    .getByRole("heading", { name: "The Reset", exact: true, level: 1 })
     .waitFor();
   assert.equal(
     await page.getByRole("link", { name: "Register for this run" }).count(),
     0,
   );
   await page.getByRole("button", { name: "Reserve a spot" }).click();
-  await page.getByRole("dialog", { name: "RESET", exact: true }).waitFor();
+  await page.getByRole("dialog", { name: "The Reset", exact: true }).waitFor();
   assert.equal(await page.locator(".ticket-choice").count(), 3);
   await page
     .getByRole("button", { name: "Add Free run + cold plunge", exact: true })
@@ -211,7 +211,7 @@ try {
     0,
   );
   assert.equal(await page.locator(".course-figures").count(), 1);
-  assert.equal(await page.locator(".course-masthead h1").innerText(), "RESET");
+  assert.equal(await page.locator(".course-masthead h1").innerText(), "THE RESET");
   await page.screenshot({
     path: "review/urc-reset-desktop.png",
     fullPage: true,
@@ -287,7 +287,7 @@ try {
     );
   }
   await page.goto(base + "/");
-  await page.getByRole("heading", { name: "URC.", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "The Reset", exact: true, level: 1 }).waitFor();
   await page.screenshot({ path: "review/urc-home-mobile.png", fullPage: true });
   await page.getByLabel("Navigation menu", { exact: true }).click();
   await page
@@ -307,7 +307,7 @@ try {
     .getByRole("button", { name: "← Studio home", exact: true })
     .click();
   await page.getByRole("button", { name: /Manage runs/ }).click();
-  await page.getByRole("button", { name: "New run +", exact: true }).click();
+  await page.getByRole("button", { name: "Add a run +", exact: true }).click();
   assert.equal(
     await page
       .getByLabel("Optional participant limit", { exact: false })

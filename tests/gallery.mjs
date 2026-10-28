@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {galleryHighlights} from '../lib/gallery.js';
+const albums=Array.from({length:5},(_,i)=>({slug:`run-${i}`,updatedAt:`2026-10-${10+i}T10:00:00Z`,payload:{photos:[{url:`/assets/run-${i}.jpg`,caption:`Run ${i}`}]}}));
+assert.deepEqual(galleryHighlights(albums).map(x=>x.album.slug),['run-4','run-3','run-2','run-1']);
+assert.equal(albums.length,5);
+assert.equal(albums[0].payload.photos.length,1);
+const legacy={slug:'older',payload:{photos:Array.from({length:5},(_,i)=>({url:`/assets/photo-${i}.jpg`}))}};
+assert.deepEqual(galleryHighlights([legacy]).map(x=>x.index),[0,1,2,3]);
+const newest = {slug:'newest',updatedAt:'2026-10-28',payload:{photos:[{url:'/assets/new-1.jpg'},{url:'/assets/new-2.jpg'}]}};
+assert.deepEqual(galleryHighlights([legacy,newest]).map(x=>x.url),['/assets/new-1.jpg','/assets/photo-0.jpg','/assets/photo-1.jpg','/assets/photo-2.jpg']);
+assert.equal(galleryHighlights([{payload:{photos:[{url:'javascript:alert(1)'}]}}]).length,0);
+console.log('PASS: newest four albums rotate without deleting older records; one-album photo fallback and safe URLs work.');

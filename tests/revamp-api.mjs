@@ -157,7 +157,7 @@ try {
     { method: "GET", query: { section: "events", slug: "reset" } },
   );
   assert.equal(r.code, 200);
-  assert.ok(r.raw.includes("<title>RESET · URC</title>"));
+  assert.ok(r.raw.includes("<title>The Reset · URC</title>"));
   assert.ok(
     r.raw.includes("https://powerhouse-urc.vercel.app/assets/reset.jpg"),
   );

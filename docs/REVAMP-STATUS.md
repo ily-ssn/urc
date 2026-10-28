@@ -94,3 +94,12 @@ RESET detail now uses previous URC photography, a white title, factual sensory e
 Studio exposes hero photo, distance, elevation, difficulty, estimated time, water checkpoints and Strava URL fields. New URL fields receive the existing HTTPS validation and public output remains escaped. No database schema or production database mutation accompanies these changes.
 
 The final image brief is 28 files: 13 horizontal, 15 vertical. Existing photographs intentionally repeat until owner replacements arrive. The approved logo asset and live URC booking backend remain pending.
+
+
+## Visual editor and final surface refinements
+
+The homepage now highlights The Reset with its date and two actions, over the existing long scrolling photograph. The overlay fades with scroll. A skippable, once-per-tab URC lettering motion study previews the grey/draw/colour/transparent/zoom entrance; it is not the owner's original logo master. That downloadable artwork remains pending, and the rejected Eventbrite emblem stays unused. Shared page heroes use matching 94svh openings and an uncut diagonal band. The accidental footer margin is removed, floating identity colours follow the underlying section, and Menu blurs and makes the underlying page inert until closed.
+
+Studio now has a side-by-side live canvas, desktop/phone controls, homepage photo slots and manually entered run figures. Uploaded media can be assigned to the cover, banner, figures portrait and homepage cards. New gallery covers rotate into the latest four without deleting old albums. Luxenova Studios is listed as design partner at the owner's explicit request.
+
+The owner handoff is `docs/OWNER-SETUP.md`; `supabase/SETUP.sql` installs missing schema groups and seeds editable content, with reservations closed. `supabase/OWNER.sql` is run after creating the owner's Auth account. Both SQL paths are tested locally; nothing has been applied to the live URC database.

@@ -1,3 +1,4 @@
+import { entranceLetters, entranceWidth } from "./entrance-letters.js";
 /** One short entrance per tab. Content and navigation never wait for it. */
 export function mountRaceWorld() {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
@@ -5,18 +6,17 @@ export function mountRaceWorld() {
   if (!hero) return;
   let seen = false;
   try {
-    seen = sessionStorage.getItem("urc_entrance_v1") === "seen";
+    seen = sessionStorage.getItem("urc_entrance_v2") === "seen";
   } catch {}
-  // Awaiting the supplied downloadable logo master. Never substitute the old Eventbrite identity.
-  const suppliedLogo = /^\/assets\/[A-Za-z0-9._-]+\.(png|svg|webp)$/.test(
-    hero.dataset.motionLogo || "",
-  )
-    ? hero.dataset.motionLogo
-    : "";
-  if (suppliedLogo && !reduced.matches && !seen) {
+  if (!reduced.matches && !seen) {
     const intro = document.createElement("div");
-    intro.className = "urc-entrance";
-    intro.innerHTML = `<svg class="entrance-portal" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><filter id="urc-logo-alpha" x="-10%" y="-10%" width="120%" height="120%"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 3 0 0 -.18"/></filter><filter id="urc-logo-hole" x="-10%" y="-10%" width="120%" height="120%"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 3 0 0 -.18"/></filter><filter id="urc-logo-outline" x="-10%" y="-10%" width="120%" height="120%"><feColorMatrix type="matrix" values="0 0 0 0 .12  0 0 0 0 .2  0 0 0 0 .1  0 3 0 0 -.18" result="shape"/><feMorphology in="shape" operator="dilate" radius="1.1" result="dilated"/><feMorphology in="shape" operator="erode" radius=".8" result="inner"/><feComposite in="dilated" in2="inner" operator="out"/></filter><mask id="urc-portal-mask"><rect width="1000" height="700" fill="white"/><g class="entrance-cut"><image href="${suppliedLogo}" x="300" y="150" width="400" height="400" filter="url(#urc-logo-hole)"/></g></mask></defs><rect class="entrance-ground" width="1000" height="700" fill="#d6d7d0" mask="url(#urc-portal-mask)"/><g class="entrance-lettering"><image class="entrance-logo-outline" href="${suppliedLogo}" x="300" y="150" width="400" height="400" filter="url(#urc-logo-outline)"/><image class="entrance-logo-colour" href="${suppliedLogo}" x="300" y="150" width="400" height="400" filter="url(#urc-logo-alpha)"/></g></svg><button type="button" class="entrance-skip">Skip intro ↗</button>`;
+    intro.className = "urc-entrance lettering-entrance";
+    const letteringWidth = Math.min(410, 700 * innerWidth / innerHeight * .78);
+    const scale = letteringWidth / entranceWidth;
+    const letters = entranceLetters.map((letter, i) => `<path class="entrance-letter entrance-letter-${i}" d="${letter.d}" transform="translate(${letter.x} 0)" pathLength="1"/>`).join("");
+    const holes = entranceLetters.map(letter => `<path d="${letter.d}" transform="translate(${letter.x} 0)" fill="black"/>`).join("");
+    const transform = `translate(${500 - letteringWidth / 2} ${350 + 80 * letteringWidth / 410}) scale(${scale} -${scale})`;
+    intro.innerHTML = `<svg class="entrance-portal" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><mask id="urc-portal-mask"><rect width="1000" height="700" fill="white"/><g class="entrance-cut"><g transform="${transform}">${holes}</g></g></mask></defs><rect width="1000" height="700" fill="#c9cbc8" mask="url(#urc-portal-mask)"/><g transform="${transform}">${letters}</g></svg><button type="button" class="entrance-skip">Skip intro</button>`;
     document.body.append(intro);
     document.body.classList.add("entrance-playing");
     let timer;
@@ -29,7 +29,7 @@ export function mountRaceWorld() {
       document.body.classList.add("home-arrived");
       if (focused) document.querySelector(".wordmark-link")?.focus();
       try {
-        sessionStorage.setItem("urc_entrance_v1", "seen");
+        sessionStorage.setItem("urc_entrance_v2", "seen");
       } catch {}
     };
     intro.querySelector("button").addEventListener("click", finish);
@@ -77,6 +77,8 @@ export function mountRaceWorld() {
       "--hero-zoom",
       reduced.matches ? "1.05" : (1.2 - heroProgress * 0.14).toFixed(4),
     );
+    hero.style.setProperty("--hero-copy-opacity", String(1 - clamp(-heroBounds.top / (innerHeight * .7))));
+    hero.style.setProperty("--hero-copy-y", `${-Math.min(innerHeight * .2, -heroBounds.top * .15)}px`);
     if (cameraRoll) {
       const b = cameraRoll.getBoundingClientRect();
       const p = clamp((innerHeight - b.top) / (innerHeight + b.height));

@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       ...new Set(
         entries
           .flatMap((e) => [
-            e.payload?.coverPath,
+            ...["coverPath", "heroPath", "figuresPath", "prepRunPath", "prepSimplePath", "prepTicketPath"].map(key => e.payload?.[key]),
             ...(e.payload?.photos ?? []).map((p) => p.path),
           ])
           .filter(
@@ -46,12 +46,12 @@ export default async function handler(req, res) {
         if (item.signedUrl) urls.set(item.path, item.signedUrl);
     }
     for (const entry of entries) {
-      if (entry.payload?.coverPath)
-        entry.payload.coverUrl = urls.get(entry.payload.coverPath) ?? null;
+      for (const key of ["coverPath", "heroPath", "figuresPath", "prepRunPath", "prepSimplePath", "prepTicketPath"])
+        if (entry.payload?.[key]) entry.payload[key.replace(/Path$/, "Url")] = urls.get(entry.payload[key]) ?? null;
       if (entry.payload?.photos)
         entry.payload.photos = entry.payload.photos.map((p) => ({
           ...p,
-          url: urls.get(p.path) ?? null,
+          url: p.path ? urls.get(p.path) ?? null : p.url,
         }));
     }
     res.setHeader("Cache-Control", "public, max-age=15, s-maxage=30");

@@ -966,3 +966,32 @@
   font-size: 13px;
   margin-block: 12px;
 }
+/* A live canvas beside the existing role-protected draft editor. */
+#studio-editor.has-visual-editor {display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:24px;align-items:start;}
+#studio-editor.has-visual-editor[hidden] {display:none;}
+.has-visual-editor > .back-button,.has-visual-editor > .editor-heading {grid-column:1/-1;}
+.has-visual-editor > #entry-form {grid-column:1;grid-row:3;min-width:0;}
+.has-visual-editor > .visual-editor {grid-column:2;grid-row:3;position:sticky;top:24px;min-width:0;background:#dddeda;border:1px solid #c8cbc3;border-radius:18px;overflow:hidden;text-align:center;}
+.visual-toolbar {padding:16px;display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;align-items:center;background:#fff;}
+.visual-toolbar small {width:100%;text-align:left;color:#68705f;}
+.visual-toolbar button {padding:8px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;cursor:pointer;}
+.visual-toolbar button[aria-pressed=true] {background:#172015;color:#fff;}
+#visual-canvas {border:0;width:100%;max-width:100%;height:76svh;background:#fff;display:block;margin:auto;}
+.has-visual-editor .editor-group-fields {grid-template-columns:1fr;}
+.has-visual-editor .editor-fields {display:block;}
+.has-visual-editor .photo-grid {grid-template-columns:1fr 1fr;}
+.has-visual-editor .studio-savebar {position:sticky;bottom:0;flex-wrap:wrap;}
+@media(max-width:1000px) {
+ #studio-editor.has-visual-editor {display:block;}
+ .has-visual-editor > .visual-editor {position:relative;top:auto;margin:24px 0;}
+ #visual-canvas {height:65svh;}
+}
+.studio-main:has(.has-visual-editor:not([hidden])) {max-width:1600px;padding:24px 3vw 80px;}
+.has-visual-editor > .back-button {justify-self:start;margin:0;}
+.has-visual-editor > .editor-heading {margin:0;max-width:none;width:100%;}
+.has-visual-editor > .editor-heading h1 {font-size:36px;margin-top:12px;}
+.has-visual-editor > .editor-heading p {margin-top:10px;}
+.has-visual-editor > #entry-form {width:100%;margin:0;}
+.has-visual-editor .editor-field {display:block;margin-bottom:20px;}
+.has-visual-editor .studio-savebar {padding:12px;left:auto;right:auto;}
+.has-visual-editor .photo-actions {flex-wrap:wrap;justify-content:start;}
