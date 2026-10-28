@@ -9,7 +9,7 @@ This is an implementation and activation checklist, not a claim that every roadm
 - Event-specific accents, practical arrival and activity details, links between runs, galleries, partners and recaps.
 - Full-screen gallery photos with swipe/keyboard navigation, captions, credits and removal-request route.
 - First-run guide, device checklist and a transparent distance/pace duration calculator.
-- RESET registration via its real Eventbrite listing. Eventbrite owns those tickets and confirmations; no duplicate native pass is issued.
+- RESET has an on-site reservation dialog for the three owner-supplied free experiences, quantity selection, guest names and email, with a printable pass after a confirmed native booking. It is visibly pending until the backend is connected and a native event is published; it never invents a saved reservation. Existing Eventbrite bookings are handled through their original confirmations.
 - Studio and PDF layout previews are explicitly labelled samples. They do not save records or issue valid admission.
 
 ## Implemented, requiring the URC database and verification
@@ -42,3 +42,7 @@ The Studio helper is disabled by default. Configure `URC_AI_ENABLED=true`, a ser
 ## Verification scope
 
 `npm run build`, `npm test` and `npm run test:browser` verify the generated pages, APIs, actual database permissions in isolated PGlite and browser flows with explicit transport fixtures where a live backend would be required. Production database and provider verification remain blocked by access/setup. Dependency advisory checks do not prove that software is free of all vulnerabilities. No claim of a mistake-free system is made.
+
+## Interface refinement · 28 October 2026
+
+The homepage now has distinct event-edition, community portrait, photo contact-sheet and first-run layouts. The event page has larger chapter typography, rounded action controls, a consent-based Google venue map, a schedule and a guest reservation dialog. Recovery venue details are editable in Studio and remain absent until confirmed. The automatic Luxenova sponsor profile has been removed; design attribution appears only once in the bottom footer. The original logo and further owner photos are still pending. No live Supabase change was made: the connector still denies access to URC.

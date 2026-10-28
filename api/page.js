@@ -31,15 +31,6 @@ export default async function handler(req, res) {
       ),
     );
     entry = source.entries.find((x) => x.kind === kind && x.slug === slug);
-    if (section === "partners" && slug === "luxenova-studios")
-      entry = {
-        title: "Luxenova Studios",
-        payload: {
-          contribution:
-            "URC creative partner. In-kind design and digital support.",
-          coverUrl: "/assets/luxenova-mark.png",
-        },
-      };
     const db = publicBackend();
     if (db) {
       const { data, error } = await db

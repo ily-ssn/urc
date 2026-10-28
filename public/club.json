@@ -8,17 +8,7 @@
   "stravaUrl": null,
   "contactEmail": null,
   "events": [],
-  "partners": [
-    {
-      "id": "luxenova",
-      "name": "Luxenova Studios",
-      "type": "Creative partner",
-      "contribution": "In-kind design and digital support",
-      "description": "Supporting the URC community through design, branding and its digital experience.",
-      "url": "https://luxenovastudios.com",
-      "logo": "/assets/luxenova-mark.png"
-    }
-  ],
+  "partners": [],
   "tiktokUrl": "https://www.tiktok.com/@urbanruncommunity",
   "eventbriteUrl": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463"
 }

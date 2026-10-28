@@ -1,3 +1,5 @@
+import { homeExperience, eventExperience } from "./experience.js";
+import { mountReservation } from "./reservation.js";
 import {
   renderCommunity,
   renderMemberSettings,
@@ -91,7 +93,7 @@ function saveRun(id) {
 function card(x) {
   const p = x.payload ?? {},
     image = safeUrl(p.coverUrl);
-  return `<article class="entry-card"><a href="${path(x)}"><div class="entry-art ${x.id === "luxenova" ? "partner-logo-dark" : ""}">${image ? `<img class="${x.kind === "partner" ? "partner-logo" : ""}" src="${e(image)}" alt="${e(p.coverAlt || x.title)}" loading="lazy">` : '<span class="poster-mark" aria-hidden="true">U<i>R</i>C</span>'}</div><div class="entry-meta">${e(x.kind === "event" ? date(p.startsAt) : p.partnerType || p.category || "URC / HARARE")}</div><h2>${e(x.title)}</h2><p>${e(p.summary || p.purpose || p.contribution || "")}</p><span class="entry-action">${x.kind === "album" ? "Open album" : x.kind === "event" ? "View run" : "Read the story"} ↗</span></a></article>`;
+  return `<article class="entry-card"><a href="${path(x)}"><div class="entry-art">${image ? `<img class="${x.kind === "partner" ? "partner-logo" : ""}" src="${e(image)}" alt="${e(p.coverAlt || x.title)}" loading="lazy">` : '<span class="poster-mark" aria-hidden="true">U<i>R</i>C</span>'}</div><div class="entry-meta">${e(x.kind === "event" ? date(p.startsAt) : p.partnerType || p.category || "URC / HARARE")}</div><h2>${e(x.title)}</h2><p>${e(p.summary || p.purpose || p.contribution || "")}</p><span class="entry-action">${x.kind === "album" ? "Open album" : x.kind === "event" ? "View run" : "Read the story"} ↗</span></a></article>`;
 }
 function related(x) {
   const ids = (x.payload?.partnerIds ?? "").split(",").map((v) => v.trim());
@@ -127,9 +129,9 @@ function home() {
       entries.find(
         (x) => x.kind === "page" && x.slug === "homepage-introduction",
       )?.payload ?? {};
-  const photo = safeUrl(settings.coverUrl) || "/assets/urc-community.jpg";
-  main.innerHTML = `<section class="home-top"><div class="home-title"><h1>U<i>R</i><span>C.</span></h1><div><strong>Powerhouse<br>Urban Run Club.</strong><p>Harare, Zimbabwe.<br>A lifestyle in motion.</p></div></div><div class="home-visual"><img src="${e(photo)}" alt="${e(settings.coverAlt || "Running photography, used as a visual reference until club photographs are published")}" fetchpriority="high"><div class="home-photo-overlay"></div><div class="home-photo-caption"><strong>Harare.<br>On foot.</strong><p>${settings.coverUrl ? "Powerhouse Urban Run Club." : "Reference photography. URC community photographs will take this space."}</p></div></div><div class="home-context"><p>${e(settings.announcement || "Shared runs. Local causes. Time together after the finish.")}</p><a class="text-link" href="/first-run">New to the club? Start here ↗</a></div></section><section class="section"><div class="section-head"><h2>The next starting line.</h2><a class="text-link" href="/events">Explore all runs ↗</a></div>${next ? `<article class="event-feature"><div class="event-feature-copy"><p>${e(date(next.payload.startsAt))}</p><h3>${e(next.title)}</h3><p>${e(next.payload.purpose)}</p>${button("Explore this run", path(next))}</div><div class="event-feature-art">${next.payload.coverUrl ? `<img src="${e(safeUrl(next.payload.coverUrl))}" alt="${e(next.title)}">` : '<span>HARARE / FREE ATTENDANCE</span><div class="giant-mark">U<i>R</i>C</div><span>GIVING IS ALWAYS OPTIONAL.</span>'}</div></article>` : `<article class="event-feature"><div class="event-feature-copy"><h3>Good company.<br>A reason to run.</h3><p>Our confirmed runs bring together a cause, a choice of distances and something to share after the finish. The next event will appear here when its details are ready.</p>${button("Get to know the club", "/club")}</div><div class="event-feature-art"><span>POWERHOUSE URBAN RUN CLUB</span><div class="giant-mark">U<i>R</i>C</div><span>HARARE, ZIMBABWE.</span></div></article>`}</section><section class="section home-links"><div><h2>A club that goes<br>beyond the finish.</h2><p>${e(settings.summary || "URC brings people together through purpose-led runs in Harare. The route is part of the day. So are the people you meet, the causes we support and the local partners who make each experience different.")}</p><a class="text-link" href="/club">Meet Powerhouse ↗</a></div><nav class="big-links" aria-label="Explore URC"><a href="/gallery">The moments <span>↗</span></a><a href="/partners">The collaborations <span>↗</span></a><a href="/impact">The difference <span>↗</span></a></nav></section>${albums.length ? `<section class="section"><div class="section-head"><h2>From the last time out.</h2><a href="/gallery" class="text-link">All albums ↗</a></div><div class="listing">${albums.map(card).join("")}</div></section>` : ""}<section class="section green-panel editorial-copy"><h2>Your first run<br>starts here.</h2><div><p>Come on your own or bring a friend. You can see the distances, pace guidance and meeting details before choosing a run.</p><p>Attendance is free. Giving is optional.</p><a href="/first-run" class="text-link">What to expect ↗</a></div></section>`;
+  main.innerHTML = homeExperience({ next, albums, settings, formatDate: date });
 }
+
 function directory() {
   const kind = {
       events: "event",
@@ -227,14 +229,18 @@ function directory() {
               ? "Our own moments, in their own time."
               : page === "impact"
                 ? "Real stories. Confirmed outcomes."
-                : "The next run is taking shape.",
+                : page === "partners"
+                  ? "Good collaborations take people."
+                  : "The next run is taking shape.",
           items.length
             ? "Try another search or filter."
             : page === "gallery"
               ? "Each published event album will live here. No reference photos are presented as URC event photographs."
               : page === "impact"
                 ? "Recaps and verified results will appear after the runs. We do not present estimates as confirmed giving."
-                : "Dates, distances and registration will appear when the next run is confirmed.",
+                : page === "partners"
+                  ? "Confirmed partners and their contributions will appear here. Interested in working with URC? Talk to the team."
+                  : "Dates, distances and registration will appear when the next run is confirmed.",
         );
   };
   $("#directory-search").addEventListener("input", render);
@@ -257,15 +263,36 @@ function detail(x) {
       theme = ["lime", "rose", "ice"].includes(p.theme) ? p.theme : "lime";
     main.insertAdjacentHTML(
       "beforeend",
-      `<div class="wrap theme-${theme}">${p.coverUrl ? `<img class="detail-cover" src="${e(safeUrl(p.coverUrl))}" alt="${e(p.coverAlt || x.title)}">` : `<div class="event-poster"><div><p>POWERHOUSE URBAN RUN CLUB / HARARE</p><h2>${e(x.title)}</h2></div><div class="poster-urc" aria-hidden="true">U<i>R</i>C</div></div>`}<div class="detail-actions"><button class="text-link" data-save="${e(x.id)}" aria-pressed="${saved().includes(x.id)}">${saved().includes(x.id) ? "Saved ✓" : "Save this run"}</button><button class="text-link" id="event-calendar">Add to calendar ↓</button><button class="text-link" id="event-share">Share this run ↗</button><button class="text-link" id="event-poster">Download event poster ↓</button></div><div class="detail-layout"><div class="detail-main">${sectionBlock("The reason we’re running.", p.purpose)}${sectionBlock("The distances.", p.activities)}${sectionBlock("After the finish.", p.partnerOffer)}${sectionBlock("The partner details.", p.offerTerms)}${sectionBlock("The plan for the day.", p.itinerary)}${sectionBlock("Getting there.", p.arrival)}${sectionBlock("Your comfort and accessibility.", p.accessibility)}${sectionBlock("The essentials.", p.checklist || "Bring water, comfortable shoes and suitable layers. Check the meeting point and arrive in time for the briefing. Follow the organiser’s route and safety instructions.")}<a class="text-link" href="/first-run">Your first club run? Read the guide ↗</a>${state === "past" ? `<section><h2>How was your run?</h2><p>Tell the organisers what worked and what could be better.</p><div id="feedback-form"></div></section>` : ""}${p.organiserContact ? sectionBlock("Need the organiser?", p.organiserContact) : ""}</div><aside class="detail-side" id="registration"><h2>${state === "past" ? "This run is in the books." : state === "cancelled" ? "Event cancelled." : state === "postponed" ? "Event postponed." : "Your place at the start."}</h2><dl><dt>When</dt><dd>${e(date(p.startsAt))}</dd><dt>Meeting point</dt><dd>${e(p.location)}</dd><dt>Activities</dt><dd>${e(p.activities)}</dd>${p.registrationClosesAt ? `<dt>Registration closes</dt><dd>${e(date(p.registrationClosesAt))}</dd>` : ""}</dl>${safeUrl(p.mapUrl) ? `<a class="text-link" href="${e(safeUrl(p.mapUrl))}" target="_blank" rel="noopener noreferrer">Open directions ↗</a>` : ""}<div id="registration-form"></div>${sectionBlock("Registration policy", p.cancellationPolicy || "Attendance is free. Giving is a separate choice. Keep your private pass link safe; you can manage your registration from it.")}</aside></div>${linkRelated(x)}</div>`,
+      eventExperience(x, {
+        state,
+        formatDate: date,
+        saved: saved().includes(x.id),
+        related: linkRelated(x),
+      }),
     );
+    $("#load-venue-map").addEventListener("click", () => {
+      const frame = document.createElement("iframe");
+      frame.title = "Event meeting point: " + p.location;
+      frame.src =
+        "https://maps.google.com/maps?q=" +
+        encodeURIComponent(p.location + ", Zimbabwe") +
+        "&z=15&output=embed";
+      frame.referrerPolicy = "no-referrer";
+      frame.loading = "lazy";
+      const target = $("#venue-map-frame");
+      target.append(frame);
+      target.hidden = false;
+      $(".map-consent").hidden = true;
+      $(".map-grid").hidden = true;
+    });
     if (
       state === "upcoming" &&
       p.registration === "open" &&
       (!p.registrationClosesAt ||
         Date.parse(p.registrationClosesAt) > Date.now())
     ) {
-      if (p.registrationMode === "free-pass") registration(x);
+      if (["free-pass", "urc-pending"].includes(p.registrationMode))
+        mountReservation($("#registration-form"), x);
       else if (safeUrl(p.joinUrl))
         $("#registration-form").innerHTML = button(
           "Register for this run",
@@ -305,112 +332,6 @@ function detail(x) {
       void attachFollow($("#follow-partner"), "partner", x.id, toast);
   }
 }
-function registration(x) {
-  const target = $("#registration-form"),
-    p = x.payload,
-    options = activityOptions(p);
-  let step = 1;
-  target.innerHTML = `<form class="registration-form"><div class="form-steps" aria-label="Registration steps"><span data-step-label="1" aria-current="step">1. Your activity</span><span data-step-label="2">2. Your details</span><span data-step-label="3">3. Your pass</span></div><div data-step="1"><label for="participant-activity">Your run or walk</label>${options.length ? `<select id="participant-activity" name="activity" required>${options.map((o) => `<option>${e(o)}</option>`).join("")}</select>` : '<input id="participant-activity" name="activity" maxlength="100" required>'}<label for="group-size">How many people?</label><select id="group-size" name="groupSize"><option value="1">1 person</option><option value="2">2 people</option><option value="3">3 people</option><option value="4">4 people</option><option value="5">5 people</option><option value="6">6 people</option></select><p class="form-note">Attendance is free. There is no donation requirement.</p></div><div data-step="2" hidden><label for="participant-name">Your name</label><input id="participant-name" name="name" maxlength="80" autocomplete="name" required><label for="participant-email">Email, optional</label><input id="participant-email" name="email" type="email" maxlength="254" autocomplete="email"><label for="participant-phone">Phone, optional</label><input id="participant-phone" name="phone" type="tel" maxlength="40" autocomplete="tel"><div id="group-companions"></div><label class="honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label><p class="form-note">Contact details are only for this event. Your PDF is available immediately without email delivery.</p></div><div class="registration-nav"><button type="button" class="button outline" id="registration-back" hidden>Back</button><button type="button" class="button" id="registration-next">Continue →</button><button type="submit" class="button" id="registration-submit" hidden>Get my free pass →</button></div><p class="form-error" role="status"></p><p class="form-note">By registering, you agree to the <a class="text-link" href="/privacy">participation and privacy information</a>.</p></form>`;
-  const form = $("form", target);
-  $("#registration-next").addEventListener("click", () => {
-    if (!form.elements.activity.reportValidity()) return;
-    const previous = Array.from({ length: 5 }, (_, i) => ({
-      name: form.elements["companion-" + i]?.value || "",
-      activity:
-        form.elements["companion-activity-" + i]?.value ||
-        form.elements.activity.value,
-    }));
-    $("#group-companions").innerHTML = Array.from(
-      { length: Number(form.elements.groupSize.value) - 1 },
-      (_, i) =>
-        `<label for="companion-${i}">Participant ${i + 2} name</label><input id="companion-${i}" name="companion-${i}" maxlength="80" required><label for="companion-activity-${i}">Their activity</label><select id="companion-activity-${i}" name="companion-activity-${i}">${options.map((o) => `<option ${o === form.elements.activity.value ? "selected" : ""}>${e(o)}</option>`).join("")}</select>`,
-    ).join("");
-    previous.forEach((person, i) => {
-      if (form.elements["companion-" + i])
-        form.elements["companion-" + i].value = person.name;
-      if (form.elements["companion-activity-" + i])
-        form.elements["companion-activity-" + i].value = person.activity;
-    });
-    step = 2;
-    update();
-  });
-  $("#registration-back").addEventListener("click", () => {
-    step = 1;
-    update();
-  });
-  function update() {
-    $$("[data-step]", form).forEach(
-      (el) => (el.hidden = Number(el.dataset.step) !== step),
-    );
-    $$("[data-step-label]", form).forEach((el) => {
-      el.removeAttribute("aria-current");
-      if (Number(el.dataset.stepLabel) === step)
-        el.setAttribute("aria-current", "step");
-    });
-    $("#registration-back").hidden = step === 1;
-    $("#registration-next").hidden = step === 2;
-    $("#registration-submit").hidden = step === 1;
-    if (step === 2) form.elements.name.focus();
-  }
-  form.addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-    if (step !== 2) return;
-    const b = $("#registration-submit");
-    b.disabled = true;
-    $(".form-error", form).textContent = "Saving your place…";
-    try {
-      let authorization = "";
-      try {
-        const config = await (await fetch("/api/studio/config")).json();
-        if (config.configured) {
-          const db = createClient(config.url, config.publishableKey);
-          const {
-            data: { session },
-          } = await db.auth.getSession();
-          if (session) authorization = "Bearer " + session.access_token;
-        }
-      } catch {}
-      const companions = Array.from(
-        { length: Number(form.elements.groupSize.value) - 1 },
-        (_, i) => ({
-          name: form.elements["companion-" + i].value,
-          activity: form.elements["companion-activity-" + i].value,
-        }),
-      );
-      const r = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(authorization ? { Authorization: authorization } : {}),
-        },
-        body: JSON.stringify({
-          eventId: x.id,
-          ...Object.fromEntries(new FormData(form)),
-          companions,
-        }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw Error(data.error || "Registration could not finish.");
-      if (data.passes) {
-        if (
-          !Array.isArray(data.passes) ||
-          data.passes.some((p) => !/^\/pass#[A-Za-z0-9_-]{43}$/.test(p.path))
-        )
-          throw Error("Your group pass links could not open.");
-        target.innerHTML = `<h2>Your group is registered.</h2><p>Save each private link. Every participant has their own pass.</p><ul class="saved-list">${data.passes.map((p) => `<li><a href="${e(p.path)}">${e(p.name)} — open pass ↗</a></li>`).join("")}</ul>`;
-        return;
-      }
-      if (!/^\/pass#[A-Za-z0-9_-]{43}$/.test(data.path))
-        throw Error(
-          "Your private pass link could not open. Contact the organiser.",
-        );
-      location.assign(data.path);
-    } catch (err) {
-      $(".form-error", form).textContent = err.message;
-      b.disabled = false;
-    }
-  });
-}
 function clubPage() {
   const settings = entries.find(
     (x) => x.kind === "page" && x.slug === "the-club",
@@ -421,6 +342,16 @@ function clubPage() {
       "A run club rooted in Harare, with room for different paces, people and reasons to show up.",
     ) +
     `<section class="section editorial-copy"><h2>A lifestyle<br>in motion.</h2><div><p>${e(settings?.summary || "Powerhouse Urban Run Club brings people together through shared runs and purpose-led events in Harare. We build each day around movement, a local cause and experiences made possible with our partners.")}</p><p>We usually come together for one or two runs a month. The confirmed event page tells you what is planned, who it supports and what to expect.</p><p>You do not need a member account to join a run. Attendance is free, and giving is optional.</p><a href="/events" class="text-link">Find a run that suits you ↗</a></div></section><section class="section green-panel"><div class="section-head"><h2>The run is part of the day.</h2><p>The experience around it matters too.</p></div><nav class="big-links" aria-label="Life around URC"><a href="/partners">Local collaborations <span>↗</span></a><a href="/impact">Causes we support <span>↗</span></a><a href="/gallery">The people and moments <span>↗</span></a></nav></section><section class="section editorial-copy"><h2>Built by<br>the community.</h2><div><p>Want to help at a run, photograph an event or bring a partner experience to the club? Tell the organisers what you have in mind.</p><a href="/contact?topic=volunteer" class="text-link">Volunteer with URC ↗</a></div></section>`;
+  const moments = entries
+    .filter((x) => x.kind === "album")
+    .flatMap((x) => x.payload.photos || [])
+    .filter((x) => safeUrl(x.url))
+    .slice(0, 3);
+  if (moments.length)
+    $(".editorial-copy", main).insertAdjacentHTML(
+      "afterend",
+      `<section class="section club-family"><div class="section-head"><h2>A familiar face.<br>A place to belong.</h2><p>More than a date in the calendar. Time with people who make room for you.</p></div><div class="club-family-photos">${moments.map((im) => `<img src="${e(safeUrl(im.url))}" alt="${e(im.alt || "URC community photograph")}" loading="lazy">`).join("")}</div><p class="image-credit">From the club’s community collection. <a href="/gallery">See the gallery and photo credits ↗</a></p></section>`,
+    );
 }
 function firstRun() {
   const steps = [
@@ -806,20 +737,6 @@ async function init() {
     entries = [...merged.values()].filter(
       (x) => kindRoute[x.kind] || x.kind === "page",
     );
-    if (!entries.some((x) => x.kind === "partner" && /luxenova/i.test(x.title)))
-      entries.push({
-        id: "luxenova",
-        kind: "partner",
-        title: "Luxenova Studios",
-        slug: "luxenova-studios",
-        payload: {
-          partnerType: "Creative partner",
-          contribution:
-            "In-kind design and digital support. Luxenova contributes URC’s branding, website and digital experience to support the community.",
-          url: "https://luxenovastudios.com",
-          coverUrl: "/assets/luxenova-mark.png",
-        },
-      });
     const homepage = entries.find(
       (x) => x.kind === "page" && x.slug === "homepage-introduction",
     )?.payload;

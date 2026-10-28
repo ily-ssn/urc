@@ -31,7 +31,7 @@ Published content uses immutable snapshots until the next explicit Publish. Anon
 
 ## Content and assets
 
-`public/club.json` holds launch defaults and verified organiser/social links. `public/community.json` contains reviewed public Eventbrite content, checked on 27 October 2026. RESET registers through Eventbrite; it does not issue a second URC pass. Device-only saved runs and a first-run checklist work without an account. No advertising trackers or analytics are installed.
+`public/club.json` holds launch defaults and verified organiser/social links. `public/community.json` contains reviewed public Eventbrite content, checked on 27 October 2026. RESET now has a URC guest-reservation interface with the owner-supplied free experience options. Real reservations remain unavailable until the dedicated backend and native event record are connected. Existing Eventbrite bookings remain managed by their original confirmation. Device-only saved runs and a first-run checklist work without an account. No advertising trackers or analytics are installed.
 
 The homepage and gallery use photographs from the organiser page supplied by the owner. Origins are recorded in `public/assets/urc-eventbrite-sources.json`. Generated hero/reference photographs have been removed. The community collection is not presented as a dated event recap. The owner's photo ZIP is still pending. Local Barlow Condensed and Manrope subsets include SIL Open Font Licenses. The wordmark is a typographic interpretation of the supplied identity.
 

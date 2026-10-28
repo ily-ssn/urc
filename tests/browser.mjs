@@ -109,14 +109,50 @@ try {
   await page
     .getByRole("heading", { name: "RESET", exact: true, level: 1 })
     .waitFor();
-  const register = page.getByRole("link", { name: "Register for this run" });
   assert.equal(
-    await register.getAttribute("href"),
-    "https://www.eventbrite.co.uk/e/reset-tickets-2003915635610",
-  );
-  assert.equal(
-    await page.getByRole("button", { name: "Get my free pass" }).count(),
+    await page.getByRole("link", { name: "Register for this run" }).count(),
     0,
+  );
+  await page.getByRole("button", { name: "Reserve a spot" }).click();
+  await page.getByRole("dialog", { name: "RESET", exact: true }).waitFor();
+  assert.equal(await page.locator(".ticket-choice").count(), 3);
+  await page
+    .getByRole("button", { name: "Add Free run + cold plunge", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Continue to your details", exact: false })
+    .click();
+  await page
+    .getByText("URC reservations are not open on this website yet.", {
+      exact: false,
+    })
+    .waitFor();
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Confirm free reservation", exact: false })
+      .isDisabled(),
+    true,
+  );
+  await page.screenshot({
+    path: "review/urc-reservation-mobile.png",
+    fullPage: true,
+  });
+  await page
+    .getByRole("button", { name: "Close reservation", exact: true })
+    .click();
+  assert.equal(await page.locator("iframe").count(), 0);
+  await page.route("https://maps.google.com/**", (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: "<p>Map transport fixture</p>",
+    }),
+  );
+  await page
+    .getByRole("button", { name: "Load venue map", exact: false })
+    .click();
+  assert.match(
+    await page.locator("iframe").getAttribute("src"),
+    /56%20Kingsmead/,
   );
   await page
     .getByRole("button", { name: "Save this run", exact: true })
@@ -140,7 +176,7 @@ try {
     fullPage: true,
   });
   checks.push(
-    "RESET uses verified Eventbrite registration, saved runs, correct calendar time and downloadable poster",
+    "RESET provides guest activity choices, honest unconnected booking state, click-to-load venue map, saved runs, calendar and poster",
   );
   await page.goto(base + "/account");
   await page.getByRole("heading", { name: "Your URC.", exact: true }).waitFor();
@@ -171,7 +207,7 @@ try {
   await page.keyboard.press("ArrowLeft");
   await page.getByText("1 / 5", { exact: true }).waitFor();
   await page.keyboard.press("Escape");
-  await page.waitForURL(url => !url.hash);
+  await page.waitForURL((url) => !url.hash);
   assert.equal(new URL(page.url()).hash, "");
   checks.push(
     "Real community album supports full-screen keyboard photo navigation",
@@ -467,20 +503,51 @@ try {
     .getByRole("heading", { name: "A local test run", exact: true, level: 1 })
     .waitFor();
   await memberPage
-    .getByLabel("How many people?", { exact: true })
-    .selectOption("2");
-  await memberPage
-    .getByRole("button", { name: "Continue →", exact: true })
+    .getByRole("button", { name: "Reserve a spot", exact: false })
     .click();
   await memberPage
-    .getByLabel("Your name", { exact: true })
-    .fill("First runner");
+    .getByRole("button", { name: "Add Walk", exact: true })
+    .click();
   await memberPage
-    .getByLabel("Participant 2 name", { exact: true })
-    .fill("Second runner");
+    .getByRole("button", { name: "Continue to your details", exact: false })
+    .click();
+  await memberPage
+    .getByRole("textbox", { name: "First name", exact: true })
+    .nth(0)
+    .fill("First");
+  await memberPage
+    .getByRole("textbox", { name: "Last name", exact: true })
+    .nth(0)
+    .fill("runner");
+  await memberPage
+    .getByRole("textbox", { name: "First name", exact: true })
+    .nth(1)
+    .fill("Second");
+  await memberPage
+    .getByRole("textbox", { name: "Last name", exact: true })
+    .nth(1)
+    .fill("runner");
+  await memberPage
+    .getByRole("textbox", { name: "Email address", exact: true })
+    .fill("runner@example.invalid");
+  await memberPage
+    .getByRole("button", { name: "Change experiences", exact: false })
+    .click();
+  await memberPage
+    .getByRole("button", { name: "Continue to your details", exact: false })
+    .click();
+  assert.equal(
+    await memberPage
+      .getByRole("textbox", { name: "First name", exact: true })
+      .nth(1)
+      .inputValue(),
+    "Second",
+  );
   await connected.route("**/api/register", async (route) => {
     const d = route.request().postDataJSON();
+    assert.equal(d.name, "First runner");
     assert.equal(d.companions[0].name, "Second runner");
+    assert.equal(d.companions[0].activity, "Walk");
     await route.fulfill({
       status: 201,
       json: {
@@ -492,17 +559,118 @@ try {
     });
   });
   await memberPage
-    .getByRole("button", { name: "Get my free pass →", exact: true })
+    .getByRole("checkbox", { name: "I have read", exact: false })
+    .check();
+  await memberPage
+    .getByRole("button", { name: "Confirm free reservation", exact: false })
     .click();
   await memberPage
-    .getByRole("heading", { name: "Your group is registered.", exact: true })
+    .getByText("Your places are reserved.", { exact: true })
     .waitFor();
   assert.equal(
-    await memberPage.locator('#registration-form a[href^="/pass#"]').count(),
+    await memberPage.locator('.reservation-dialog a[href^="/pass#"]').count(),
     2,
   );
   checks.push(
-    "Guided group booking produces a separate private pass link for each participant",
+    "Guest-style quantity reservations preserve details and produce a separate private pass for every confirmed participant",
+  );
+  const guestContext = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+  });
+  await guestContext.route("**/api/content", (route) =>
+    route.fulfill({ json: { configured: true, entries: [native] } }),
+  );
+  await guestContext.route("**/api/studio/config", (route) =>
+    route.fulfill({
+      json: {
+        configured: true,
+        url: "https://ktfwfeuyrpvelvpdborw.supabase.co",
+        publishableKey: "sb_publishable_fixture",
+      },
+    }),
+  );
+  let attempts = 0;
+  await guestContext.route("**/api/register", async (route) => {
+    assert.equal(route.request().headers().authorization, undefined);
+    attempts++;
+    if (attempts === 1)
+      await route.fulfill({
+        status: 409,
+        json: {
+          error:
+            "This activity has just filled up. Please choose another option.",
+        },
+      });
+    else
+      await route.fulfill({
+        status: 201,
+        json: { name: "Guest Runner", path: "/pass#" + "c".repeat(43) },
+      });
+  });
+  const guestPage = await guestContext.newPage();
+  watch(guestPage);
+  await guestPage.goto(base + "/events/local-test-run");
+  await guestPage
+    .getByRole("button", { name: "Reserve a spot", exact: false })
+    .click();
+  await guestPage
+    .getByRole("button", { name: "Continue to your details", exact: false })
+    .click();
+  await guestPage
+    .getByRole("textbox", { name: "First name", exact: true })
+    .fill("Guest");
+  await guestPage
+    .getByRole("textbox", { name: "Last name", exact: true })
+    .fill("Runner");
+  await guestPage
+    .getByRole("textbox", { name: "Email address", exact: true })
+    .fill("guest@example.invalid");
+  await guestPage
+    .getByRole("checkbox", { name: "I have read", exact: false })
+    .check();
+  await guestPage
+    .getByRole("button", { name: "Confirm free reservation", exact: false })
+    .click();
+  await guestPage
+    .getByText("This activity has just filled up.", { exact: false })
+    .waitFor();
+  assert.equal(await guestPage.locator(".reservation-success").count(), 0);
+  assert.equal(
+    await guestPage
+      .getByRole("textbox", { name: "First name", exact: true })
+      .inputValue(),
+    "Guest",
+  );
+  await guestPage
+    .getByRole("button", { name: "Change experiences", exact: false })
+    .click();
+  await guestPage
+    .getByRole("button", { name: "Remove 5 km", exact: true })
+    .click();
+  await guestPage
+    .getByRole("button", { name: "Add Walk", exact: true })
+    .click();
+  await guestPage
+    .getByRole("button", { name: "Continue to your details", exact: false })
+    .click();
+  await guestPage
+    .getByRole("checkbox", { name: "I have read", exact: false })
+    .check();
+  await guestPage
+    .getByRole("button", { name: "Confirm free reservation", exact: false })
+    .click();
+  await guestPage
+    .getByText("Your places are reserved.", { exact: true })
+    .waitFor();
+  assert.equal(attempts, 2);
+  assert.equal(
+    await guestPage.evaluate(
+      () => document.documentElement.scrollWidth > innerWidth,
+    ),
+    false,
+  );
+  checks.push(
+    "Guest booking requires no account, preserves entries after a capacity error and only confirms a saved reservation",
   );
   assert.deepEqual(errors, []);
   await writeFile(

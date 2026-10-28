@@ -182,6 +182,18 @@ const fields = {
 fields.event.push(
   ["endsAt", "End time", "datetime-local", "Optional confirmed finish time."],
   [
+    "recoveryLocation",
+    "Recovery venue",
+    "textarea",
+    "Optional confirmed cold plunge / sauna venue. Leave empty if unconfirmed.",
+  ],
+  [
+    "recoveryMapUrl",
+    "Recovery venue directions",
+    "url",
+    "A verified HTTPS maps link for the recovery venue.",
+  ],
+  [
     "activityOptions",
     "Activity choices",
     "textarea",
@@ -1017,6 +1029,8 @@ function renderFields() {
     "accessibility",
     "checklist",
     "organiserContact",
+    "recoveryLocation",
+    "recoveryMapUrl",
   ];
   const partnerKeys = [
     "partnerOffer",

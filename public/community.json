@@ -18,7 +18,7 @@
         "arrival": "Arrival from 07:10. Free parking is listed by the organiser. Ages 16 and over.",
         "itinerary": "07:10 \u2014 Arrival\n07:30 \u2014 Event begins\nCommunity run followed by cold plunge and sauna\n12:00 \u2014 Event ends",
         "registration": "open",
-        "registrationMode": "external",
+        "registrationMode": "urc-pending",
         "joinUrl": "https://www.eventbrite.co.uk/e/reset-tickets-2003915635610",
         "mapUrl": "https://www.google.com/maps/search/?api=1&query=56+Kingsmead+Road+Harare",
         "theme": "ice",
@@ -26,8 +26,10 @@
         "coverAlt": "RESET event poster: run, cold plunge, sauna",
         "sourceUrl": "https://www.eventbrite.co.uk/e/reset-tickets-2003915635610",
         "sourceCheckedAt": "2026-10-27",
-        "cancellationPolicy": "Registration is managed on Eventbrite. Use your Eventbrite confirmation and the organiser\u2019s instructions for ticket changes.",
-        "registrationClosesAt": "2026-10-31T06:30:00+02:00"
+        "cancellationPolicy": "URC reservations will open here once the booking service is connected. For a booking already made on Eventbrite, use that booking\u2019s confirmation and instructions.",
+        "registrationClosesAt": "2026-10-31T06:30:00+02:00",
+        "activityOptions": "Free run\nFree run + cold plunge\nFree run + cold plunge + sauna",
+        "ticketOptionsSource": "Activity choices supplied by the organiser website owner on 28 October 2026."
       }
     },
     {

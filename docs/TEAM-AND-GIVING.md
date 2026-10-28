@@ -39,7 +39,7 @@ Owner/editor/check-in access is enforced by database policies and guarded functi
 - **Runs:** create the details, save a draft, then Publish. A live run keeps its existing public snapshot while a new draft is edited. Times use Africa/Harare (CAT).
 - **Photos:** create a gallery, choose its run, upload JPG/PNG/WebP photos, set a cover and captions, then publish. Images are resized and re-encoded without original EXIF. iPhone HEIC files need a compatible export. Draft images remain private; only published references receive public access. Previously issued public image URLs expire after five minutes.
 - **Recaps:** write the story, attach the run, and add only verified impact. No financial total is auto-published from the private ledger.
-- **Partners:** name the partner and explain the actual contribution. Luxenova's in-kind design/digital support is included; example food and recovery businesses are not claimed as sponsors.
+- **Partners:** name the partner and explain the actual contribution. No sponsor is inserted automatically. Publish only the collaborations the club has confirmed; design attribution stays in the bottom footer.
 - **Website:** use page key `homepage-introduction` to update the homepage introduction and hero cover. A published page can also supply a verified community join URL and announcement. Full layout, arbitrary scripts, FAQs and navigation remain code-managed in this release.
 - **Shop:** remains a clear connection/setup state until the real merchant/store provider is selected. Product variants, stock, orders, checkout and refunds must come from that integration.
 
