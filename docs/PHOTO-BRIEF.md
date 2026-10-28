@@ -43,8 +43,22 @@ Albums remain separate: send photographs grouped by run with photographer credit
 
 ## Approved branding
 
-Use the owner's circular R/URC artwork and COMMUNITY wordmark. The Eventbrite emblem is not used. The actual PNG/SVG originals in a ZIP are still needed because the inline chat images have no downloadable workspace file reference. Do not approximate them with a font or regenerate them. The logo entrance remains inactive until the approved downloadable artwork is installed.
+Use the owner's circular R/URC artwork and COMMUNITY wordmark. The Eventbrite emblem is not used. The actual PNG/SVG originals in a ZIP are still needed because the inline chat images have no downloadable workspace file reference. Do not approximate them with a font or regenerate them. The active entrance is a URC lettering motion study; it is not the original logo master. The exact downloadable artwork is still needed for final branding.
 
 ## Route/media details still pending
 
 The course profile is visibly illustrative, elevation is not asserted, and the Google map identifies the meeting point. A real route map, Strava route and confirmed water checkpoints can replace the pending values through Studio. No marked-route claim is made. No video/audio player is shown without actual approved media.
+
+## Gallery files received · 28 October 2026
+
+The owner supplied 14 additional photographs and the gallery Drive folder. Thirteen are portraits; the sideways sign photograph is now a landscape image. All are available in the gallery alongside the five existing photos. See [GALLERY-IMPORT.md](GALLERY-IMPORT.md) for source files and exported dimensions.
+
+For future exports, use these three sizes where possible:
+
+| Use | Width × height | Shape |
+| --- | --- | --- |
+| Full-screen banners and run-card headers | 2560 × 1440 (minimum 1920 × 1080) | 16:9 horizontal |
+| Editorial pictures, camera-roll tiles and run figures | 1500 × 2000 | 3:4 vertical |
+| Taller gallery originals | 1350 × 2400 or larger | 9:16 vertical |
+
+Keep the full original if available; the website crops to its frame and the photo viewer retains the whole web image. More wide photographs would be most useful; the existing wide community image remains the hero fallback.

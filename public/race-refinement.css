@@ -2185,6 +2185,9 @@ body:not([data-page="home"]):not(:has(.shared-masthead)):not(
 .race-navigation > .wordmark-link {mix-blend-mode: normal; transition: color .18s;}
 .race-navigation > .wordmark-link[data-tone="dark"] {color: #141414;}
 .race-navigation > .wordmark-link[data-tone="light"] {color: #fff;}
+/* Keep the same filter layer when closed so opening and closing both interpolate. */
+#main, body > .footer {filter: blur(0px); transition: filter .5s cubic-bezier(.22,.61,.36,1);}
+.race-navigation > .wordmark-link {filter: blur(0px); transition: color .18s, filter .5s cubic-bezier(.22,.61,.36,1);}
 body.menu-is-open #main, body.menu-is-open .footer {filter: blur(12px); pointer-events: none;}
 body.menu-is-open .wordmark-link {filter: blur(5px);}
 .site-menu-panel {box-shadow: 0 18px 90px #0003;}
@@ -2214,7 +2217,8 @@ body.menu-is-open .wordmark-link {filter: blur(5px);}
 .home-event-actions {display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;}
 .home-hero-button {background: #2227; border: 1px solid #fff; backdrop-filter: blur(14px); color: #fff; border-radius: 18px; padding: 13px 20px;}
 .home-hero-button span {display: grid; place-items: center; border-radius: 50%; padding: 8px; background: #b0ec49; color: #151515;}
-.entrance-playing .race-hero-media img {animation: home-photo-settle 2.8s both;}
+.entrance-playing:has(.entrance-full) .race-hero-media img {animation: home-photo-settle 4.4s both;}
+.entrance-playing:has(.entrance-quick) .race-hero-media img {animation: home-photo-settle 1.65s both;}
 @keyframes home-photo-settle {from {transform: scale(1.45);} to {transform: scale(1.2);}}
 @media(max-width:700px) {
   .shared-masthead {height:94svh; min-height:560px; padding-bottom:70px;}
@@ -2229,6 +2233,35 @@ body.menu-is-open .wordmark-link {filter: blur(5px);}
   .entrance-playing .race-hero-media img {animation:none;}
   .button .ui-arrow,.race-text-link .ui-arrow {transition:none;}
 }
-.lettering-entrance .entrance-letter {stroke: #889087; stroke-width: 7; animation-duration: 2.4s;}
+.lettering-entrance {
+  --letter-time: 1.8s;
+  --portal-open: 1.95s;
+  --portal-zoom: 2.95s;
+  --zoom-time: 1.1s;
+  --exit-time: .3s;
+  --exit-delay: 4.05s;
+  animation: entrance-away var(--exit-time) var(--exit-delay) both;
+}
+.lettering-entrance.entrance-quick {
+  --letter-time: .65s;
+  --portal-open: .8s;
+  --portal-zoom: .9s;
+  --zoom-time: .55s;
+  --exit-time: .2s;
+  --exit-delay: 1.45s;
+}
+.lettering-entrance .entrance-letter {stroke: #889087; stroke-width: 7; animation-duration: var(--letter-time);}
+/* Reveal the transparent lettering first, then zoom after the clear pause. */
+.lettering-entrance .entrance-cut {
+  opacity: 0;
+  animation: entrance-open .01s var(--portal-open) step-start forwards,
+    entrance-zoom var(--zoom-time) var(--portal-zoom) cubic-bezier(.7,0,.3,1) both;
+}
+@keyframes entrance-open {from {opacity: 1;} to {opacity: 1;}}
+@keyframes entrance-zoom {from {transform: scale(1);} to {transform: scale(45);}}
 .lettering-entrance .entrance-cut {transform-origin: 445px 360px;}
 @media(prefers-reduced-motion:reduce) {.home-event-overlay {transform:none;}}
+
+@media(prefers-reduced-motion:reduce) {
+  #main, body > .footer, .race-navigation > .wordmark-link {transition:none;}
+}

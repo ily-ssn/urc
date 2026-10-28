@@ -1,6 +1,6 @@
 {
   "source": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463",
-  "checkedAt": "2026-10-27",
+  "checkedAt": "2026-10-28",
   "entries": [
     {
       "id": "eventbrite-2003915635610",
@@ -13,26 +13,26 @@
         "location": "56 Kingsmead Road, Harare",
         "activities": "Community run. Distance and pace details: confirm with the organiser.",
         "purpose": "A fitness and wellness event combining a community run, cold water therapy and heat recovery.",
-        "partnerOffer": "Run \u00b7 cold plunge \u00b7 sauna",
+        "partnerOffer": "Run · cold plunge · sauna",
         "offerTerms": "Check the Eventbrite listing for the latest participation and recovery-session details.",
         "arrival": "Arrival from 07:10. Free parking is listed by the organiser. Ages 16 and over.",
-        "itinerary": "07:10 \u2014 Arrival\n07:30 \u2014 Event begins\nCommunity run followed by cold plunge and sauna\n12:00 \u2014 Event ends",
+        "itinerary": "07:10 — Arrival\n07:30 — Event begins\nCommunity run followed by cold plunge and sauna\n12:00 — Event ends",
         "registration": "open",
         "registrationMode": "urc-pending",
         "joinUrl": "https://www.eventbrite.co.uk/e/reset-tickets-2003915635610",
         "mapUrl": "https://www.google.com/maps/search/?api=1&query=56+Kingsmead+Road+Harare",
         "theme": "ice",
-        "coverUrl": "/assets/reset.jpg",
-        "coverAlt": "RESET event poster: run, cold plunge, sauna",
+        "coverUrl": "/assets/urc-shared-start.jpg",
+        "coverAlt": "URC members together at an earlier community outing",
         "sourceUrl": "https://www.eventbrite.co.uk/e/reset-tickets-2003915635610",
         "sourceCheckedAt": "2026-10-27",
-        "cancellationPolicy": "URC reservations will open here once the booking service is connected. For a booking already made on Eventbrite, use that booking\u2019s confirmation and instructions.",
+        "cancellationPolicy": "URC reservations will open here once the booking service is connected. For a booking already made on Eventbrite, use that booking’s confirmation and instructions.",
         "registrationClosesAt": "2026-10-31T06:30:00+02:00",
         "activityOptions": "Free run\nFree run + cold plunge\nFree run + cold plunge + sauna",
         "ticketOptionsSource": "Activity choices supplied by the organiser website owner on 28 October 2026.",
         "distance": "5 km",
         "difficulty": "Easy",
-        "estimatedTime": "30\u201360 minutes for 5 km"
+        "estimatedTime": "30–60 minutes for 5 km"
       }
     },
     {
@@ -41,38 +41,108 @@
       "title": "From the community",
       "slug": "from-the-community",
       "payload": {
-        "summary": "Photographs shared on the URC organiser profile. A collection of community moments, rather than a dated event recap.",
+        "summary": "Photographs from the URC community, including the collection supplied by the website owner. These are shared moments from different outings, rather than a dated event recap.",
         "category": "Community highlights",
-        "coverUrl": "/assets/urc-moment-1.jpg",
-        "sourceUrl": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463",
+        "coverUrl": "/assets/urc-shared-start.jpg",
+        "sourceUrl": "https://drive.google.com/drive/folders/1gSvRyBC8tfaefQaFKjFlS5cx-83FpQWs",
         "photos": [
           {
             "url": "/assets/urc-moment-1.jpg",
-            "alt": "URC community photograph 1, from the organiser\u2019s Eventbrite profile",
+            "alt": "URC community photograph 1, from the organiser’s Eventbrite profile",
             "credit": "Urban Run Community / Eventbrite organiser media"
           },
           {
             "url": "/assets/urc-moment-2.jpg",
-            "alt": "URC community photograph 2, from the organiser\u2019s Eventbrite profile",
+            "alt": "URC community photograph 2, from the organiser’s Eventbrite profile",
             "credit": "Urban Run Community / Eventbrite organiser media",
             "caption": "Mind Over Miles"
           },
           {
             "url": "/assets/urc-moment-3.jpg",
-            "alt": "URC community photograph 3, from the organiser\u2019s Eventbrite profile",
+            "alt": "URC community photograph 3, from the organiser’s Eventbrite profile",
             "credit": "Urban Run Community / Eventbrite organiser media",
             "caption": "Mind Over Miles"
           },
           {
             "url": "/assets/urc-moment-4.jpg",
-            "alt": "URC community photograph 4, from the organiser\u2019s Eventbrite profile",
+            "alt": "URC community photograph 4, from the organiser’s Eventbrite profile",
             "credit": "Urban Run Community / Eventbrite organiser media",
             "caption": "Sweat Now, Pose Later"
           },
           {
             "url": "/assets/urc-moment-5.jpg",
-            "alt": "URC community photograph 5, from the organiser\u2019s Eventbrite profile",
+            "alt": "URC community photograph 5, from the organiser’s Eventbrite profile",
             "credit": "Urban Run Community / Eventbrite organiser media"
+          },
+          {
+            "url": "/assets/urc-shared-start.jpg",
+            "alt": "URC members holding a handwritten sign outside",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-friends-outside.jpg",
+            "alt": "Two URC members together after a morning outdoors",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-recovery-studio.jpg",
+            "alt": "A group taking part in a studio recovery session",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-finish-sign.jpg",
+            "alt": "URC members holding a red finish-line sign",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-morning-pair.jpg",
+            "alt": "Two members together after a URC outing",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-studio-session.jpg",
+            "alt": "A studio session with the URC community",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-studio-group.jpg",
+            "alt": "URC members together at a local studio",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-post-run-friends.jpg",
+            "alt": "Friends together after a URC run",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-recovery-drinks.jpg",
+            "alt": "Refreshments after a community session",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-coffee-stop.jpg",
+            "alt": "URC members catching up at a coffee stop",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-after-the-run.jpg",
+            "alt": "Members outside after a URC outing",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-running-together.jpg",
+            "alt": "URC members together on a tree-lined road",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-club-friends.jpg",
+            "alt": "Two URC members wearing club shirts",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
+          },
+          {
+            "url": "/assets/urc-community-signs.jpg",
+            "alt": "Handwritten signs made by the running community",
+            "credit": "Urban Run Community — photographs supplied by the website owner"
           }
         ]
       }
@@ -86,7 +156,11 @@
         "coverUrl": "/assets/urc-community.jpg",
         "coverAlt": "Urban Run Community members together in Harare",
         "summary": "Movement, wellness and shared experiences in Harare. URC brings people together through community runs, fitness events and collaborations.",
-        "joinUrl": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463"
+        "joinUrl": "https://www.eventbrite.co.uk/o/urban-run-community-121318535463",
+        "galleryDriveUrl": "https://drive.google.com/drive/folders/1gSvRyBC8tfaefQaFKjFlS5cx-83FpQWs?usp=drive_link",
+        "prepRunUrl": "/assets/urc-running-together.jpg",
+        "prepSimpleUrl": "/assets/urc-club-friends.jpg",
+        "prepTicketUrl": "/assets/urc-post-run-friends.jpg"
       }
     },
     {

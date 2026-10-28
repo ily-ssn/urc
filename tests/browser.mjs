@@ -234,12 +234,14 @@ try {
   await page
     .getByRole("heading", { name: "From the community", exact: true, level: 1 })
     .waitFor();
+  const galleryPhotoCount = await page.locator(".gallery-photo").count();
+  assert.equal(galleryPhotoCount, 19);
   await page.getByRole("button", { name: "View photo 1", exact: true }).click();
   await page.getByRole("dialog", { name: "Gallery photo" }).waitFor();
   await page.getByRole("button", { name: "Next photo", exact: true }).click();
-  await page.getByText("2 / 5", { exact: true }).waitFor();
+  await page.getByText(`2 / ${galleryPhotoCount}`, { exact: true }).waitFor();
   await page.keyboard.press("ArrowLeft");
-  await page.getByText("1 / 5", { exact: true }).waitFor();
+  await page.getByText(`1 / ${galleryPhotoCount}`, { exact: true }).waitFor();
   await page.keyboard.press("Escape");
   await page.waitForURL((url) => !url.hash);
   assert.equal(new URL(page.url()).hash, "");

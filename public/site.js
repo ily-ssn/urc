@@ -1,5 +1,5 @@
 import { galleryHighlights } from "../lib/gallery.js";
-import { mountRaceWorld } from "./race-world.js";
+import { mountRaceWorld, mountPageEntrance } from "./race-world.js";
 import {
   homeExperience,
   eventExperience,
@@ -183,7 +183,7 @@ function runsPage() {
     );
   main.innerHTML =
     intro("Runs", "") +
-    `<section class="runs-tradition"><div class="runs-tradition-photo"><img src="/assets/urc-moment-3.jpg" alt="Urban Run Community together in Harare" loading="lazy"></div><div class="runs-tradition-copy"><h2>Powerhouse.<br>On foot.</h2><p>We meet in Harare, run together and make a morning of it.</p><p>Each run has its own plan: a cause to support, a local collaboration, something to do after the finish. Pick the one that feels like your kind of day.</p><a class="race-text-link" href="/club">Meet the club ↗</a></div></section><section class="run-feature-list" aria-label="Upcoming runs">${events.length ? events.map(runFeature).join("") : "<p>The next run is being planned. Confirmed details will appear here.</p>"}</section>`;
+    `<section class="runs-tradition"><div class="runs-tradition-photo"><img src="/assets/urc-running-together.jpg" alt="URC members together on a tree-lined road" loading="lazy"></div><div class="runs-tradition-copy"><h2>Powerhouse.<br>On foot.</h2><p>We meet in Harare, run together and make a morning of it.</p><p>Each run has its own plan: a cause to support, a local collaboration, something to do after the finish. Pick the one that feels like your kind of day.</p><a class="race-text-link" href="/club">Meet the club ↗</a></div></section><section class="run-feature-list" aria-label="Upcoming runs">${events.length ? events.map(runFeature).join("") : "<p>The next run is being planned. Confirmed details will appear here.</p>"}</section>`;
 }
 function galleryPage() {
   const albums = entries.filter((x) => x.kind === "album").sort((a,b) => Date.parse(b.payload?.galleryDate || b.updatedAt || 0) - Date.parse(a.payload?.galleryDate || a.updatedAt || 0));
@@ -200,7 +200,7 @@ function partnersPage() {
   const partners = entries.filter((x) => x.kind === "partner");
   main.innerHTML =
     intro("Partners", "") +
-    `<section class="editorial-photo-row"><img src="/assets/urc-moment-4.jpg" alt="URC members together in Harare" loading="lazy"><div><h2>Local people.<br>Good collaborations.</h2><p>A place to meet. Something to eat. Time to recover after the run. There are different ways to be part of a URC morning.</p><a class="race-text-link" href="/contact?topic=partnership">Talk to the team <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section>${partners.length ? `<section class="section"><div class="listing">${partners.map(card).join("")}</div></section>` : ""}`;
+    `<section class="editorial-photo-row"><img src="/assets/urc-studio-group.jpg" alt="URC members together at a local studio" loading="lazy"><div><h2>Local people.<br>Good collaborations.</h2><p>A place to meet. Something to eat. Time to recover after the run. There are different ways to be part of a URC morning.</p><a class="race-text-link" href="/contact?topic=partnership">Talk to the team <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section>${partners.length ? `<section class="section"><div class="listing">${partners.map(card).join("")}</div></section>` : ""}`;
 }
 function directory() {
   if (page === "events") return runsPage();
@@ -325,7 +325,7 @@ function clubPage() {
   )?.payload;
   main.innerHTML =
     intro("The club", "") +
-    `<section class="editorial-photo-row"><img src="/assets/urc-moment-1.jpg" alt="URC members together in Harare" loading="lazy"><div><h2>A lifestyle<br>in motion.</h2><p>${e(settings?.summary || "Powerhouse Urban Run Club is where people in Harare get together to run, catch up and spend a morning outside.")}</p><p>We usually meet for one or two runs a month. Each day has its own plan, its own people and a reason to get out together.</p><a class="race-text-link" href="/events">Find your run <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="editorial-photo-row photo-row-reverse photo-row-muted"><img src="/assets/urc-moment-2.jpg" alt="URC members at Mind Over Miles" loading="lazy"><div><h2>A familiar face.<br>A place to belong.</h2><p>You don’t need to know everyone before you get here. Come on your own, bring a friend and find your pace. The faces get familiar.</p><a class="race-text-link" href="/gallery">Inside the gallery <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="club-around"><h2>The run is<br>part of the day.</h2><nav aria-label="Around Powerhouse"><a href="/partners">Local collaborations <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a><a href="/gallery">The people and moments <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></nav></section><section class="editorial-photo-row photo-row-dark"><img src="/assets/urc-moment-4.jpg" alt="Members of the URC community" loading="lazy"><div><h2>Built by<br>the community.</h2><p>Help at a run, photograph a morning or bring something to the next collaboration. There’s more than one way to be involved.</p><a class="race-text-link" href="/contact?topic=volunteer">Get involved <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section>`;
+    `<section class="editorial-photo-row"><img src="/assets/urc-moment-1.jpg" alt="URC members together in Harare" loading="lazy"><div><h2>A lifestyle<br>in motion.</h2><p>${e(settings?.summary || "Powerhouse Urban Run Club is where people in Harare get together to run, catch up and spend a morning outside.")}</p><p>We usually meet for one or two runs a month. Each day has its own plan, its own people and a reason to get out together.</p><a class="race-text-link" href="/events">Find your run <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="editorial-photo-row photo-row-reverse photo-row-muted"><img src="/assets/urc-moment-2.jpg" alt="URC members at Mind Over Miles" loading="lazy"><div><h2>A familiar face.<br>A place to belong.</h2><p>You don’t need to know everyone before you get here. Come on your own, bring a friend and find your pace. The faces get familiar.</p><a class="race-text-link" href="/gallery">Inside the gallery <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section><section class="club-around"><h2>The run is<br>part of the day.</h2><nav aria-label="Around Powerhouse"><a href="/partners">Local collaborations <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a><a href="/gallery">The people and moments <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></nav></section><section class="editorial-photo-row photo-row-dark"><img src="/assets/urc-post-run-friends.jpg" alt="Friends together after a URC run" loading="lazy"><div><h2>Built by<br>the community.</h2><p>Help at a run, photograph a morning or bring something to the next collaboration. There’s more than one way to be involved.</p><a class="race-text-link" href="/contact?topic=volunteer">Get involved <span aria-hidden="true"><svg class="ui-arrow" viewBox="0 0 24 24" fill="none"><path d="M5 19 19 5M6 5h13v13" stroke="currentColor" stroke-width="1.7"/></svg></span></a></div></section>`;
 }
 
 function firstRun() {
@@ -713,6 +713,7 @@ async function init() {
         toast,
       });
     else if (page === "privacy") privacy();
+    mountPageEntrance();
     const photo = location.hash.match(/^#photo-(\d+)$/);
     if (photo && photos.length) openPhoto(Number(photo[1]) - 1);
   } catch (err) {
@@ -765,4 +766,6 @@ document.addEventListener("pointerdown", (event) => {
   if (menuDropdown?.open && !menuDropdown.contains(event.target))
     menuDropdown.open = false;
 });
+// A restored back/forward page does not rerun its module. Give it the quick transition.
+addEventListener("pageshow", event => { if (event.persisted) mountPageEntrance({quick:true}); });
 init();

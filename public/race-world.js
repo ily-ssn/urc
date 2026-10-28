@@ -1,12 +1,16 @@
 import { entranceLetters, entranceWidth } from "./entrance-letters.js";
-/** Replay the short entrance on each page load, respecting reduced motion. */
-export function mountRaceWorld() {
+/** Public pages share the same entrance; internal navigation uses a shorter cut. */
+export function mountPageEntrance({ quick } = {}) {
+  if (document.querySelector(".urc-entrance")) return;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-  const hero = document.querySelector(".race-hero");
-  if (!hero) return;
+  const navigation = performance.getEntriesByType("navigation")[0]?.type;
+  let internal = false;
+  try { internal = new URL(document.referrer).origin === location.origin; } catch {}
+  const fullEntrance = quick !== true && document.body.dataset.page === "home" &&
+    (navigation === "reload" || (navigation !== "back_forward" && !internal));
   if (!reduced.matches) {
     const intro = document.createElement("div");
-    intro.className = "urc-entrance lettering-entrance";
+    intro.className = `urc-entrance lettering-entrance ${fullEntrance ? "entrance-full" : "entrance-quick"}`;
     const letteringWidth = Math.min(410, 700 * innerWidth / innerHeight * .78);
     const scale = letteringWidth / entranceWidth;
     const letters = entranceLetters.map((letter, i) => `<path class="entrance-letter entrance-letter-${i}" d="${letter.d}" transform="translate(${letter.x} 0)" pathLength="1"/>`).join("");
@@ -33,9 +37,14 @@ export function mountRaceWorld() {
     timer = setTimeout(() => {
       finish();
       reduced.removeEventListener("change", onMotion);
-    }, 2800);
+    }, fullEntrance ? 4500 : 1700);
   } else document.body.classList.add("home-arrived");
+}
 
+export function mountRaceWorld() {
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const hero = document.querySelector(".race-hero");
+  if (!hero) return;
   const section = document.querySelector(".race-manifesto");
   const words = [...document.querySelectorAll(".route-word")];
   const lineup = document.querySelector(".race-lineup");
