@@ -2139,3 +2139,25 @@ body[data-page="shop"] {
   flex-shrink: 0;
   vertical-align: middle;
 }
+/* Only the two controls float; there is no sticky navigation surface. */
+.nav.race-navigation {
+  position: fixed !important;
+  inset: 0 0 auto;
+  background: transparent !important;
+  border: 0 !important;
+  pointer-events: none;
+}
+.race-navigation > .wordmark-link,
+.race-navigation > .site-menu-dropdown {
+  pointer-events: auto;
+}
+.race-navigation > .wordmark-link {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+body:not([data-page="home"]):not(:has(.shared-masthead)):not(
+    :has(.race-page-intro)
+  )
+  #main {
+  padding-top: 85px;
+}
