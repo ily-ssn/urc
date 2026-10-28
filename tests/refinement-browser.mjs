@@ -56,7 +56,14 @@ try {
  await p.locator('#back-list').click();await p.getByRole('button',{name:/Saturday Sauna/}).click();assert.equal(await p.getByLabel('Difficulty',{exact:true}).inputValue(),'Easy');
  const motion=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});const m=await motion.newPage();
  await m.goto(base+'/');await m.locator('.urc-entrance').waitFor();await m.screenshot({path:'review/entrance-proof.png'});await m.getByRole('button',{name:'Skip intro',exact:true}).click();assert.equal(await m.locator('.urc-entrance').count(),0);
+ // Even existing visitors with the old session flag see the entrance again.
+ await m.evaluate(()=>sessionStorage.setItem('urc_entrance_v2','seen'));
+ await m.reload();await m.locator('.urc-entrance').waitFor();
+ assert.equal(await m.locator('.entrance-portal > rect').getAttribute('fill'),'#181a19');
+ await m.locator('.urc-entrance').waitFor({state:'detached'});
+ await m.reload();await m.locator('.urc-entrance').waitFor();
+ await m.emulateMedia({reducedMotion:'reduce'});await m.locator('.urc-entrance').waitFor({state:'detached'});
  await m.reload();await m.locator('.home-event-copy').waitFor();assert.equal(await m.locator('.urc-entrance').count(),0);
  assert.deepEqual(errors,[]);
- console.log('PASS: 14 responsive mastheads, full diagonal bands, no horizontal overflow, footer seam removal, adaptive brand, blurred inert menu with Escape focus, non-clickable guide photos, hero event/fade, design partner, live run editor with saved fields, phone canvas, skippable once-per-tab entrance.');
+ console.log('PASS: 14 responsive mastheads, full diagonal bands, no horizontal overflow, footer seam removal, adaptive brand, blurred inert menu with Escape focus, non-clickable guide photos, hero event/fade, design partner, live run editor with saved fields, phone canvas, skippable dark entrance replayed after every refresh with reduced-motion support.');
 }finally{await browser?.close();server.kill('SIGTERM');}

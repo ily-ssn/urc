@@ -1,14 +1,10 @@
 import { entranceLetters, entranceWidth } from "./entrance-letters.js";
-/** One short entrance per tab. Content and navigation never wait for it. */
+/** Replay the short entrance on each page load, respecting reduced motion. */
 export function mountRaceWorld() {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const hero = document.querySelector(".race-hero");
   if (!hero) return;
-  let seen = false;
-  try {
-    seen = sessionStorage.getItem("urc_entrance_v2") === "seen";
-  } catch {}
-  if (!reduced.matches && !seen) {
+  if (!reduced.matches) {
     const intro = document.createElement("div");
     intro.className = "urc-entrance lettering-entrance";
     const letteringWidth = Math.min(410, 700 * innerWidth / innerHeight * .78);
@@ -16,7 +12,7 @@ export function mountRaceWorld() {
     const letters = entranceLetters.map((letter, i) => `<path class="entrance-letter entrance-letter-${i}" d="${letter.d}" transform="translate(${letter.x} 0)" pathLength="1"/>`).join("");
     const holes = entranceLetters.map(letter => `<path d="${letter.d}" transform="translate(${letter.x} 0)" fill="black"/>`).join("");
     const transform = `translate(${500 - letteringWidth / 2} ${350 + 80 * letteringWidth / 410}) scale(${scale} -${scale})`;
-    intro.innerHTML = `<svg class="entrance-portal" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><mask id="urc-portal-mask"><rect width="1000" height="700" fill="white"/><g class="entrance-cut"><g transform="${transform}">${holes}</g></g></mask></defs><rect width="1000" height="700" fill="#c9cbc8" mask="url(#urc-portal-mask)"/><g transform="${transform}">${letters}</g></svg><button type="button" class="entrance-skip">Skip intro</button>`;
+    intro.innerHTML = `<svg class="entrance-portal" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><mask id="urc-portal-mask"><rect width="1000" height="700" fill="white"/><g class="entrance-cut"><g transform="${transform}">${holes}</g></g></mask></defs><rect width="1000" height="700" fill="#181a19" mask="url(#urc-portal-mask)"/><g transform="${transform}">${letters}</g></svg><button type="button" class="entrance-skip">Skip intro</button>`;
     document.body.append(intro);
     document.body.classList.add("entrance-playing");
     let timer;
@@ -28,9 +24,6 @@ export function mountRaceWorld() {
       document.body.classList.remove("entrance-playing");
       document.body.classList.add("home-arrived");
       if (focused) document.querySelector(".wordmark-link")?.focus();
-      try {
-        sessionStorage.setItem("urc_entrance_v2", "seen");
-      } catch {}
     };
     intro.querySelector("button").addEventListener("click", finish);
     const onMotion = () => {

@@ -2229,6 +2229,6 @@ body.menu-is-open .wordmark-link {filter: blur(5px);}
   .entrance-playing .race-hero-media img {animation:none;}
   .button .ui-arrow,.race-text-link .ui-arrow {transition:none;}
 }
-.lettering-entrance .entrance-letter {stroke: #434942; stroke-width: 7; animation-duration: 2.4s;}
+.lettering-entrance .entrance-letter {stroke: #889087; stroke-width: 7; animation-duration: 2.4s;}
 .lettering-entrance .entrance-cut {transform-origin: 445px 360px;}
 @media(prefers-reduced-motion:reduce) {.home-event-overlay {transform:none;}}
