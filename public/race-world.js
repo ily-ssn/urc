@@ -8,7 +8,11 @@ export function mountRaceWorld() {
     seen = sessionStorage.getItem("urc_entrance_v1") === "seen";
   } catch {}
   // Awaiting the supplied downloadable logo master. Never substitute the old Eventbrite identity.
-  const suppliedLogo = /^\/assets\/[A-Za-z0-9._-]+\.(png|svg|webp)$/.test(hero.dataset.motionLogo || "") ? hero.dataset.motionLogo : "";
+  const suppliedLogo = /^\/assets\/[A-Za-z0-9._-]+\.(png|svg|webp)$/.test(
+    hero.dataset.motionLogo || "",
+  )
+    ? hero.dataset.motionLogo
+    : "";
   if (suppliedLogo && !reduced.matches && !seen) {
     const intro = document.createElement("div");
     intro.className = "urc-entrance";
@@ -41,39 +45,82 @@ export function mountRaceWorld() {
 
   const section = document.querySelector(".race-manifesto");
   const words = [...document.querySelectorAll(".route-word")];
+  const lineup = document.querySelector(".race-lineup");
+  const chapters = [...document.querySelectorAll(".feeling-chapter")];
   if (!section) return;
   let frame = 0,
     previous = -1;
+  const clamp = (n) => Math.max(0, Math.min(1, n));
   function update() {
     frame = 0;
     const box = section.getBoundingClientRect();
     const progress = reduced.matches
       ? 1
-      : Math.max(
-          0,
-          Math.min(1, (innerHeight * 0.84 - box.top) / (box.height * 0.76)),
-        );
+      : clamp((innerHeight * 0.84 - box.top) / (box.height * 0.76));
     section.style.setProperty("--route-progress", progress.toFixed(4));
     const count = Math.ceil(progress * words.length);
     if (count !== previous) {
       words.forEach((word, i) => word.classList.toggle("is-filled", i < count));
       previous = count;
     }
+    if (lineup) {
+      const bounds = lineup.getBoundingClientRect();
+      const p = clamp(
+        (innerHeight - bounds.top) / (innerHeight + bounds.height),
+      );
+      lineup.style.setProperty(
+        "--race-title-x",
+        reduced.matches
+          ? "-80px"
+          : `${120 - p * Math.min(innerWidth * 0.9, 1400)}px`,
+      );
+    }
+    for (const chapter of chapters) {
+      const bounds = chapter.getBoundingClientRect();
+      const p = reduced.matches
+        ? 1
+        : clamp(
+            (innerHeight * 0.85 - bounds.top) /
+              Math.min(innerHeight * 0.7, bounds.height * 0.9),
+          );
+      chapter.style.setProperty("--feeling-fill", `${(p * 100).toFixed(2)}%`);
+      chapter.style.setProperty(
+        "--feeling-copy-fill",
+        `${((reduced.matches ? 1 : clamp((p - 0.12) / 0.88)) * 100).toFixed(2)}%`,
+      );
+      chapter.style.setProperty("--feeling-line", (1 - p).toFixed(4));
+    }
   }
   const schedule = () => {
     if (!frame) frame = requestAnimationFrame(update);
   };
-  const observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry.isIntersecting) {
-        window.addEventListener("scroll", schedule, { passive: true });
-        schedule();
-      } else window.removeEventListener("scroll", schedule);
-    },
-    { rootMargin: "100px" },
-  );
-  observer.observe(section);
+  window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", schedule, { passive: true });
   reduced.addEventListener("change", schedule);
+  const preview = document.querySelector("#run-preview-dialog");
+  let previewTrigger;
+  document.querySelectorAll("[data-preview-run]").forEach((button) =>
+    button.addEventListener("click", () => {
+      previewTrigger = button;
+      preview.showModal();
+    }),
+  );
+  document
+    .querySelector("#close-run-preview")
+    ?.addEventListener("click", () => preview.close());
+  preview?.addEventListener("close", () => previewTrigger?.focus());
+  document
+    .querySelector("[data-point-next]")
+    ?.addEventListener("click", (event) => {
+      const next = document.getElementById(
+        event.currentTarget.dataset.pointNext,
+      );
+      next?.scrollIntoView({
+        behavior: reduced.matches ? "instant" : "smooth",
+        block: "center",
+      });
+      const button = next?.querySelector("[data-preview-run]");
+      button?.focus({ preventScroll: true });
+    });
   update();
 }

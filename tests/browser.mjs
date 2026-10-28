@@ -106,6 +106,37 @@ try {
   await page.screenshot({ path: "review/urc-home-desktop.png" });
   checks.push("Homepage uses real supplied-organiser photography");
   assert.equal(
+    await page
+      .locator(".race-hero-copy,.race-hero-bottom,.race-experience-photo")
+      .count(),
+    0,
+  );
+  assert.equal((await page.locator(".race-ticker").innerText()).trim(), "");
+  assert.equal(await page.locator(".home-run-card").count(), 2);
+  await page.getByRole("button", { name: "Discover run", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Sunday Social", exact: true })
+    .waitFor();
+  await page
+    .getByText("This is a sample event for reviewing the card design.", {
+      exact: false,
+    })
+    .waitFor();
+  assert.equal(await page.getByRole("button", { name: /Reserve/ }).count(), 0);
+  await page.keyboard.press("Escape");
+  checks.push(
+    "Photo-only hero and two landscape-image cards keep the sample run separate from real reservations",
+  );
+  await page.getByLabel("Navigation menu", { exact: true }).click();
+  await page.getByRole("dialog", { name: "URC", exact: true }).waitFor();
+  await page.keyboard.press("Escape");
+  assert.equal(
+    await page.evaluate(() => document.activeElement.id),
+    "open-site-menu",
+  );
+  checks.push("Desktop menu closes with Escape and restores keyboard focus");
+
+  assert.equal(
     await page.locator('img[src="/assets/urc-emblem.jpg"]').count(),
     0,
   );
@@ -118,13 +149,13 @@ try {
   checks.push(
     "Race-world reduced-motion view is fully readable and does not use the rejected Eventbrite identity",
   );
-  await page.getByRole("link", { name: "Tickets for RESET" }).click();
+  await page.getByRole("link", { name: "Discover run", exact: true }).click();
   await page.getByRole("button", { name: "Reserve a spot" }).click();
   await page.getByRole("dialog", { name: "RESET", exact: true }).waitFor();
   assert.equal(await page.locator(".ticket-choice").count(), 3);
   await page.keyboard.press("Escape");
   checks.push(
-    "Homepage ticket card opens the corresponding run and its real activity choices",
+    "Homepage Discover run control opens the corresponding run and its real activity choices",
   );
 
   await page.goto(base + "/events/reset");
@@ -289,7 +320,7 @@ try {
   await page.screenshot({ path: "review/urc-home-mobile.png", fullPage: true });
   await page.getByLabel("Navigation menu", { exact: true }).click();
   await page
-    .getByRole("navigation", { name: "Mobile navigation" })
+    .getByRole("navigation", { name: "Main navigation" })
     .getByRole("link", { name: "Community", exact: true })
     .click();
   await page.waitForURL("**/community");

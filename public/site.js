@@ -808,4 +808,28 @@ async function init() {
     $("#page-retry").onclick = init;
   }
 }
+const menuDialog = document.querySelector("#site-menu-dialog");
+const menuTrigger = document.querySelector("#open-site-menu");
+menuTrigger?.addEventListener("click", () => {
+  menuDialog.showModal();
+  menuTrigger.setAttribute("aria-expanded", "true");
+});
+document
+  .querySelector("#close-site-menu")
+  ?.addEventListener("click", () => menuDialog.close());
+menuDialog?.addEventListener("close", () => {
+  menuTrigger.setAttribute("aria-expanded", "false");
+  menuTrigger.focus();
+});
+menuDialog?.addEventListener("click", (event) => {
+  if (event.target !== menuDialog) return;
+  const r = menuDialog.getBoundingClientRect();
+  if (
+    event.clientX < r.left ||
+    event.clientX > r.right ||
+    event.clientY < r.top ||
+    event.clientY > r.bottom
+  )
+    menuDialog.close();
+});
 init();

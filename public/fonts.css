@@ -54,3 +54,10 @@
   font-display: swap;
   src: url(./assets/font-7.ttf) format("truetype");
 }
+@font-face {
+  font-family: "Syncopate";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(./assets/syncopate-bold.ttf) format("truetype");
+}

@@ -54,3 +54,17 @@ A new image-led homepage follows the owner's sports-site references through an e
 Every race card has a ticket link to its event's registration section. The RESET detail page retains the real guest reservation choices, map, calendar, saved-run controls and honest pending backend state. No new backend, authentication, payment or production database change is included.
 
 The old Eventbrite logo has been removed from header, hero and Community. The approved logo files were shown inline in chat but are not downloadable workspace assets yet. A short skip-enabled, once-per-tab entrance is prepared, with reduced-motion support; it remains inactive until the exact approved logo is installed. Do not describe this entrance or the final branding as live until that dependency is resolved.
+
+## Closer reference composition · 28 October 2026
+
+Owner review replaced the visible hero headlines, hero event/recap panels, ticker wording and desktop link row. The header now uses a left Menu dialog, a compact brand label pending the approved logo file, and a right Join the club control. The thick blank green divider overlaps the hero and black section without paper-coloured wedges.
+
+A faint original contour/road background surrounds the scroll-drawn green route and white endpoint circles. The explanatory design caption was removed. A separate centred club introduction continues on black, which finishes with rounded bottom corners. The pale race selection has oversized scroll-linked background lettering and two vertical cards with 16:9 images, wide display typography, distance/elevation pairs and animated directional arrows.
+
+The owner explicitly requested a fabricated second run and illustrative route figures for visual review. These exist only in homepage design-preview markup: Sunday Social is visibly marked Design preview, its details open a preview dialog, and it cannot accept reservations. Both cards' route figures are identified as previews. These values are not persisted to the published event data, ticketing, calendar, or database. The real RESET Discover run link still opens the actual event, which retains its ticket controls and pending native booking state.
+
+The Feeling replaces the portrait-led experience section. Its black rounded panel has an oversized ghost title and three numbered chapters: Free Start, Run Together and Stay a While. Headings fill from grey to green; body copy fills from grey to white. Motion is scroll-linked and honours reduced-motion preferences. No third-party JavaScript or original Baztan artwork/code was imported.
+
+Syncopate Bold is self-hosted from the Google Fonts apache/syncopate directory; the original Apache 2.0 licence is included in public/assets/syncopate-LICENSE.txt. It is a licensed alternative for the wide display style, not an unlicensed copy of Akira.
+
+The updated photo brief is 19 files: 8 horizontal and 11 vertical, with the official event poster reused across two placements. No backend or Supabase changes accompany this pass.
